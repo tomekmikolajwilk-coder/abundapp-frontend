@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/providers/preferences_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../shared/widgets/allocation_chart.dart';
 import '../../shared/widgets/donut_chart.dart';
 import '../../shared/widgets/pnl_header.dart';
 import 'dashboard_context.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   final DashboardContext context;
 
   const DashboardScreen({
@@ -13,10 +16,10 @@ class DashboardScreen extends StatefulWidget {
   });
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   int? _selectedChartIndex;
   String? _selectedSegmentId;
 
@@ -75,22 +78,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 32),
 
-                    if (widget.context.level != DashboardLevel.asset)
-                      DonutChart(
-                        dashContext: widget.context,
-                        selectedIndex: _selectedChartIndex,
-                        onSegmentTap: (idx, id) {
-                          if (_selectedChartIndex == idx) {
-                            _navigateDown(ctx, id);
-                            _clearSelection();
-                          } else {
-                            setState(() {
-                              _selectedChartIndex = idx;
-                              _selectedSegmentId = id;
-                            });
-                          }
-                        },
+                    if (widget.context.level != DashboardLevel.asset) ...[
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: const _ChartTypePicker(),
                       ),
+                      const SizedBox(height: 12),
+                      _buildChart(ctx),
+                    ],
 
                     const SizedBox(height: 24),
                     _SectionPlaceholder(label: 'Wykres wartości w czasie'),
@@ -110,6 +105,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildChart(BuildContext ctx) {
+    final chartType = ref.watch(preferencesProvider.select((p) => p['chart_type']));
+
+    void onSegmentTap(int idx, String id) {
+      if (_selectedChartIndex == idx) {
+        _navigateDown(ctx, id);
+        _clearSelection();
+      } else {
+        setState(() {
+          _selectedChartIndex = idx;
+          _selectedSegmentId = id;
+        });
+      }
+    }
+
+    return chartType == 'donut'
+        ? DonutChart(
+            dashContext: widget.context,
+            selectedIndex: _selectedChartIndex,
+            onSegmentTap: onSegmentTap,
+          )
+        : AllocationChart(
+            dashContext: widget.context,
+            selectedIndex: _selectedChartIndex,
+            onSegmentTap: onSegmentTap,
+          );
   }
 
   void _clearSelection() =>
@@ -134,6 +157,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       );
     }
+  }
+}
+
+class _ChartTypePicker extends ConsumerWidget {
+  const _ChartTypePicker();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final current = ref.watch(preferencesProvider.select((p) => p['chart_type']));
+    final notifier = ref.read(preferencesProvider.notifier);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _TypeButton(
+          icon: Icons.bar_chart,
+          active: current == 'bar',
+          onTap: () => notifier.setChartType('bar'),
+        ),
+        _TypeButton(
+          icon: Icons.donut_large_outlined,
+          active: current == 'donut',
+          onTap: () => notifier.setChartType('donut'),
+        ),
+      ],
+    );
+  }
+}
+
+class _TypeButton extends StatelessWidget {
+  final IconData icon;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _TypeButton({required this.icon, required this.active, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+        child: Icon(
+          icon,
+          color: active ? AppColors.textPrimary : AppColors.textSecondary,
+          size: 20,
+        ),
+      ),
+    );
   }
 }
 

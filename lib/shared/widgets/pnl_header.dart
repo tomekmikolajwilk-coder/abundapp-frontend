@@ -46,9 +46,6 @@ class PnlHeader extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const PeriodSelector(),
-            const SizedBox(height: 12),
-
             // PnL
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -65,6 +62,8 @@ class PnlHeader extends ConsumerWidget {
                 _PnlBadge(percent: pnlPercent, isPositive: isPositive),
               ],
             ),
+            const SizedBox(height: 8),
+            const PeriodSelector(),
 
             const SizedBox(height: 16),
 
