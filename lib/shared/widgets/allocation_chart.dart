@@ -4,6 +4,7 @@ import '../../core/models/holding.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../features/dashboard/dashboard_context.dart';
+import 'chart_reveal.dart';
 
 class AllocationChart extends ConsumerWidget {
   final DashboardContext dashContext;
@@ -30,7 +31,8 @@ class AllocationChart extends ConsumerWidget {
 
         final total = segments.fold(0.0, (sum, s) => sum + s.value);
 
-        return Column(
+        return ChartReveal(
+          child: Column(
           children: segments.asMap().entries.map((e) {
             final i = e.key;
             final s = e.value;
@@ -50,6 +52,7 @@ class AllocationChart extends ConsumerWidget {
               onTap: () => onSegmentTap(i, s.id),
             );
           }).toList(),
+        ),
         );
       },
     );

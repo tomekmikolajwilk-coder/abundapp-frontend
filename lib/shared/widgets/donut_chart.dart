@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/holding.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
+import 'chart_reveal.dart';
 
 class DonutChart extends ConsumerWidget {
   final DashboardContext dashContext;
@@ -32,7 +34,8 @@ class DonutChart extends ConsumerWidget {
         final total = segments.fold(0.0, (sum, s) => sum + s.value);
         final selected = selectedIndex != null ? segments[selectedIndex!] : null;
 
-        return Column(
+        return ChartReveal(
+          child: Column(
           children: [
             SizedBox(
               height: 220,
@@ -40,6 +43,8 @@ class DonutChart extends ConsumerWidget {
                 alignment: Alignment.center,
                 children: [
                   PieChart(
+                    duration: const Duration(milliseconds: 550),
+                    curve: Curves.easeOutCubic,
                     PieChartData(
                       sections: segments.asMap().entries.map((e) {
                         final i = e.key;
@@ -107,6 +112,7 @@ class DonutChart extends ConsumerWidget {
               );
             }),
           ],
+        ),
         );
       },
     );
@@ -304,7 +310,7 @@ class _LegendRow extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                '${value.toStringAsFixed(0)} $currency',
+                moneyCcy(value, currency),
                 style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 13,

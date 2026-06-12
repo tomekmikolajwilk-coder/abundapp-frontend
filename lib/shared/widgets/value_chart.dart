@@ -5,6 +5,7 @@ import 'package:syncfusion_flutter_charts/charts.dart' hide ChartPoint;
 import '../../core/models/chart_point.dart';
 import '../../core/providers/chart_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
 
 class ValueChart extends ConsumerWidget {
@@ -192,7 +193,7 @@ class _SfChart extends StatelessWidget {
           fontSize: 10,
         ),
         axisLabelFormatter: (args) =>
-            ChartAxisLabel(_compact(args.value.toDouble()), null),
+            ChartAxisLabel(compactNumber(args.value.toDouble()), null),
       ),
       zoomPanBehavior: ZoomPanBehavior(
         enablePanning: true,
@@ -229,7 +230,7 @@ class _SfChart extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  _money(value.toDouble()),
+                  moneyCcy(value.toDouble(), 'PLN'),
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 13,
@@ -264,20 +265,6 @@ class _SfChart extends StatelessWidget {
     );
   }
 
-  // Pełna kwota w tooltipie: 127513.93 -> "127 514 PLN"
-  String _money(double v) =>
-      '${NumberFormat('#,##0', 'pl_PL').format(v).replaceAll(',', ' ')} PLN';
-
-  // Skraca duże liczby na osi Y: 100552 -> "100.6k", 1.2e6 -> "1.2M"
-  String _compact(double v) {
-    if (v.abs() >= 1000000) {
-      return '${(v / 1000000).toStringAsFixed(1)}M';
-    }
-    if (v.abs() >= 1000) {
-      return '${(v / 1000).toStringAsFixed(1)}k';
-    }
-    return v.toStringAsFixed(0);
-  }
 }
 
 // --- Range chip ---

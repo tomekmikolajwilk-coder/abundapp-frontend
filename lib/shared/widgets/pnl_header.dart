@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/portfolio.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
 import 'period_selector.dart';
 
@@ -51,7 +52,7 @@ class PnlHeader extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  '${isPositive ? '+' : ''}${effectivePnl.toStringAsFixed(0)} ${portfolio.currency}',
+                  moneySigned(effectivePnl, portfolio.currency),
                   style: Theme.of(ctx).textTheme.displayLarge?.copyWith(
                         color: isPositive
                             ? AppColors.positive
@@ -70,7 +71,7 @@ class PnlHeader extends ConsumerWidget {
             Text(valueLabel, style: Theme.of(ctx).textTheme.bodyMedium),
             const SizedBox(height: 4),
             Text(
-              '${currentValue.toStringAsFixed(0)} ${portfolio.currency}',
+              moneyCcy(currentValue, portfolio.currency),
               style: Theme.of(ctx).textTheme.displayMedium,
             ),
           ],
