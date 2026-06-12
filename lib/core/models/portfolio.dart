@@ -17,6 +17,11 @@ class Portfolio {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'currency': currency,
+        'holdings_breakdown': holdings.map((h) => h.toJson()).toList(),
+      };
+
   double get totalValueUsd =>
       holdings.fold(0, (sum, h) => sum + h.valueUsd);
 

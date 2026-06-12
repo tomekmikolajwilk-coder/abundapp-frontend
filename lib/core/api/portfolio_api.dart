@@ -46,13 +46,30 @@ Future<List<String>> fetchSnapshotDates() async {
   throw Exception('Failed to load snapshot dates: ${response.statusCode}');
 }
 
-Future<Portfolio?> fetchLastVisit() async {
-  final uri = Uri.parse('$_baseUrl/last-visit?user_id=$_testUserId');
+Future<List<Map<String, dynamic>>> fetchSnapshotHistory({
+  required String? categoryId,
+  required String? assetId,
+}) async {
+  // Jeden endpoint zwraca całą serię czasową — zamiast N osobnych requestów.
+  final params = {
+    'user_id': _testUserId,
+    'category_id': ?categoryId,
+    'asset_id': ?assetId,
+  };
+  final uri = Uri.parse('$_baseUrl/value-history').replace(queryParameters: params);
   final response = await http.get(uri, headers: _headers);
+  if (response.statusCode != 200) return [];
 
-  if (response.statusCode == 200) {
-    return Portfolio.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-  }
-  if (response.statusCode == 404) return null; // brak poprzedniej wizyty
-  throw Exception('Failed to load last visit: ${response.statusCode}');
+  final json = jsonDecode(response.body) as Map<String, dynamic>;
+  final currency = json['currency'] as String?;
+  final points = (json['points'] as List<dynamic>).cast<Map<String, dynamic>>();
+
+  return points
+      .map((p) => {
+            'date': p['date'] as String,
+            'value': (p['value'] as num).toDouble(),
+            'currency': currency,
+          })
+      .toList()
+    ..sort((a, b) => (a['date'] as String).compareTo(b['date'] as String));
 }

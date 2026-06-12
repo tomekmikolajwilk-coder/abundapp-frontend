@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/providers/portfolio_provider.dart';
 import '../../core/providers/preferences_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/allocation_chart.dart';
 import '../../shared/widgets/donut_chart.dart';
 import '../../shared/widgets/pnl_header.dart';
+import '../../shared/widgets/value_chart.dart';
 import 'dashboard_context.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -25,6 +27,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext ctx) {
+    // Gdy portfel się załaduje, utrwalamy go jako baseline "ostatniej wizyty"
+    // dla przyszłych sesji (raz na dobę; bieżący baseline pozostaje zamrożony).
+    ref.listen(portfolioProvider, (_, next) {
+      next.whenData(
+        (p) => ref.read(visitBaselineProvider.notifier).recordVisit(p),
+      );
+    });
+
     return GestureDetector(
       onTap: _clearSelection,
       behavior: HitTestBehavior.translucent,
@@ -88,7 +98,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ],
 
                     const SizedBox(height: 24),
-                    _SectionPlaceholder(label: 'Wykres wartości w czasie'),
+                    ValueChart(dashContext: widget.context),
                     const SizedBox(height: 16),
                     _SectionPlaceholder(label: 'Top movers'),
                   ]),

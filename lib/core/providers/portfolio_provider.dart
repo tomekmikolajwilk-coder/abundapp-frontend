@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/portfolio_api.dart';
 import '../models/portfolio.dart';
 import '../models/pnl_period.dart';
+import 'preferences_provider.dart';
 
 // --- Dane z API ---
 
@@ -9,9 +11,50 @@ final portfolioProvider = FutureProvider<Portfolio>((ref) async {
   return fetchPortfolio();
 });
 
-final lastVisitProvider = FutureProvider<Portfolio?>((ref) async {
-  return fetchLastVisit();
-});
+// --- Lokalny baseline "od ostatniej wizyty" ---
+//
+// Backend nadpisuje swój visit-snapshot przy każdym /portfolio (każde
+// odświeżenie apki), więc /last-visit zawsze pokazuje "teraz" → PnL = 0.
+// Dlatego prowadzimy baseline lokalnie: pełny portfel z POPRZEDNIEJ sesji
+// zapisany w SharedPreferences, zamrożony na bieżącą sesję.
+//
+// Roll następuje raz na SESJĘ (cold start), nie raz na dobę — dzięki temu
+// każde uruchomienie apki przesuwa punkt odniesienia ("od ostatniej wizyty"),
+// ale odświeżenia w obrębie tej samej sesji już go nie ruszają.
+
+final visitBaselineProvider =
+    NotifierProvider<VisitBaselineNotifier, Portfolio?>(
+        VisitBaselineNotifier.new);
+
+class VisitBaselineNotifier extends Notifier<Portfolio?> {
+  static const _kJson = 'visit_baseline_json';
+
+  bool _recordedThisSession = false;
+
+  @override
+  Portfolio? build() {
+    // Baseline z poprzedniej sesji — zamrażamy na bieżącą sesję.
+    final prefs = ref.read(sharedPreferencesProvider);
+    final json = prefs.getString(_kJson);
+    if (json == null) return null;
+    try {
+      return Portfolio.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Zapisuje bieżący portfel jako baseline dla NASTĘPNEJ sesji — dokładnie raz
+  /// na uruchomienie apki. Kolejne odświeżenia w tej samej sesji są ignorowane,
+  /// więc wyświetlany baseline pozostaje zamrożony (nie resetuje się do 0).
+  void recordVisit(Portfolio current) {
+    if (_recordedThisSession) return;
+    _recordedThisSession = true;
+    ref
+        .read(sharedPreferencesProvider)
+        .setString(_kJson, jsonEncode(current.toJson()));
+  }
+}
 
 final snapshotDatesProvider = FutureProvider<List<String>>((ref) async {
   return fetchSnapshotDates();
@@ -46,7 +89,8 @@ final periodSnapshotProvider = FutureProvider<Portfolio?>((ref) async {
   final now = DateTime.now();
 
   if (period == PnlPeriod.lastVisit) {
-    return ref.watch(lastVisitProvider.future);
+    // Lokalny baseline zamiast zatrutego backendowego /last-visit
+    return ref.watch(visitBaselineProvider);
   }
 
   if (period == PnlPeriod.allTime) {

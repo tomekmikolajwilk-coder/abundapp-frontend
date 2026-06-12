@@ -25,4 +25,13 @@ class Holding {
       valueCcy: (json['value_ccy'] as num).toDouble(),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'asset_id': assetId,
+        'category': category,
+        'amount': amount,
+        'price_usd': priceUsd,
+        'value_usd': valueUsd,
+        'value_ccy': valueCcy,
+      };
 }
