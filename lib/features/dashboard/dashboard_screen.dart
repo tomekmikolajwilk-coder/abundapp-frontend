@@ -6,6 +6,7 @@ import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/allocation_chart.dart';
 import '../../shared/widgets/donut_chart.dart';
 import '../../shared/widgets/pnl_header.dart';
+import '../../shared/widgets/top_movers.dart';
 import '../../shared/widgets/value_chart.dart';
 import 'dashboard_context.dart';
 
@@ -99,8 +100,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                     const SizedBox(height: 24),
                     ValueChart(dashContext: widget.context),
-                    const SizedBox(height: 16),
-                    _SectionPlaceholder(label: 'Top movers'),
+                    const SizedBox(height: 24),
+                    TopMovers(dashContext: widget.context),
                   ]),
                 ),
               ),
@@ -219,25 +220,3 @@ class _TypeButton extends StatelessWidget {
   }
 }
 
-class _SectionPlaceholder extends StatelessWidget {
-  final String label;
-
-  const _SectionPlaceholder({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 120,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.surfaceElevated, width: 1),
-      ),
-      child: Center(
-        child: Text(label,
-            style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 14)),
-      ),
-    );
-  }
-}

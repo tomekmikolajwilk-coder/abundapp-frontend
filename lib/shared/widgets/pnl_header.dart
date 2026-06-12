@@ -106,14 +106,14 @@ class PnlHeader extends ConsumerWidget {
     if (selectedSegmentId != null) {
       return switch (context.level) {
         DashboardLevel.all => 'Wartość kategorii $selectedSegmentId',
-        DashboardLevel.category => 'Wartość $selectedSegmentId',
+        DashboardLevel.category => 'Twoje $selectedSegmentId w portfelu',
         DashboardLevel.asset => 'Wartość portfela',
       };
     }
     return switch (context.level) {
       DashboardLevel.all => 'Wartość portfela',
       DashboardLevel.category => 'Wartość ${context.title}',
-      DashboardLevel.asset => 'Wartość ${context.assetId}',
+      DashboardLevel.asset => 'Twoje ${context.assetId} w portfelu',
     };
   }
 }
