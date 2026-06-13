@@ -30,7 +30,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext ctx) {
     // Gdy portfel się załaduje, utrwalamy go jako baseline "ostatniej wizyty"
     // dla przyszłych sesji (raz na dobę; bieżący baseline pozostaje zamrożony).
-    ref.listen(portfolioProvider, (_, next) {
+    // Zawsze z wersji w walucie preferowanej — żeby podgląd w innej walucie nie
+    // zatruł zapisywanego baseline'u.
+    ref.listen(livePreferredPortfolioProvider, (_, next) {
       next.whenData(
         (p) => ref.read(visitBaselineProvider.notifier).recordVisit(p),
       );
@@ -71,6 +73,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ],
                 ),
                 actions: [
+                  const _CurrencyButton(),
                   IconButton(
                     icon: const Icon(Icons.settings_outlined,
                         color: AppColors.textSecondary),
@@ -214,6 +217,182 @@ class _TypeButton extends StatelessWidget {
           icon,
           color: active ? AppColors.textPrimary : AppColors.textSecondary,
           size: 20,
+        ),
+      ),
+    );
+  }
+}
+
+// --- Picker waluty wyświetlania ---
+//
+// Jednorazowy podgląd majątku w wybranej walucie (po dzisiejszym kursie).
+// Pokazuje aktualną walutę; tap otwiera listę. Wybór waluty preferowanej
+// resetuje podgląd (selectedCurrency = null).
+class _CurrencyButton extends ConsumerWidget {
+  const _CurrencyButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final label = ref.watch(displayCurrencyProvider);
+
+    return GestureDetector(
+      onTap: () => _openPicker(context, ref),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Icon(Icons.keyboard_arrow_down,
+                color: AppColors.textSecondary, size: 18),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openPicker(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => const _CurrencySheet(),
+    );
+  }
+}
+
+class _CurrencySheet extends ConsumerWidget {
+  const _CurrencySheet();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currenciesAsync = ref.watch(currenciesProvider);
+    final preferred =
+        ref.watch(livePreferredPortfolioProvider).valueOrNull?.currency;
+    final selected = ref.watch(selectedCurrencyProvider);
+    // Walutą aktywną jest wybrana, a gdy brak — preferowana.
+    final active = selected ?? preferred;
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
+              child: Text(
+                'Pokaż wartość w walucie',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 0, 20, 12),
+              child: Text(
+                'Przeliczenie po dzisiejszym kursie. Historia na wykresie jest '
+                'projekcją bieżącego kursu, nie wartością z przeszłości.',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+              ),
+            ),
+            Flexible(
+              child: currenciesAsync.when(
+                loading: () => const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (_, _) => const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text('Nie udało się pobrać walut',
+                      style: TextStyle(color: AppColors.textSecondary)),
+                ),
+                data: (currencies) {
+                  // Preferowana na górze, reszta w kolejności alfabetycznej.
+                  final ordered = [
+                    if (preferred != null && currencies.contains(preferred))
+                      preferred,
+                    ...currencies.where((c) => c != preferred),
+                  ];
+                  return ListView(
+                    shrinkWrap: true,
+                    children: ordered
+                        .map((c) => _CurrencyRow(
+                              code: c,
+                              isActive: c == active,
+                              isPreferred: c == preferred,
+                              onTap: () {
+                                // Wybór waluty preferowanej = reset podglądu.
+                                ref
+                                    .read(selectedCurrencyProvider.notifier)
+                                    .state = c == preferred ? null : c;
+                                Navigator.pop(context);
+                              },
+                            ))
+                        .toList(),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CurrencyRow extends StatelessWidget {
+  final String code;
+  final bool isActive;
+  final bool isPreferred;
+  final VoidCallback onTap;
+
+  const _CurrencyRow({
+    required this.code,
+    required this.isActive,
+    required this.isPreferred,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: Row(
+          children: [
+            Text(
+              code,
+              style: TextStyle(
+                color: isActive ? AppColors.accent : AppColors.textPrimary,
+                fontSize: 15,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+            if (isPreferred) ...[
+              const SizedBox(width: 8),
+              const Text(
+                'preferowana',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+              ),
+            ],
+            const Spacer(),
+            if (isActive)
+              const Icon(Icons.check, color: AppColors.accent, size: 18),
+          ],
         ),
       ),
     );

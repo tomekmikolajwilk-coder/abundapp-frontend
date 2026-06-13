@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart' hide ChartPoint;
 import '../../core/models/chart_point.dart';
 import '../../core/providers/chart_provider.dart';
+import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
@@ -22,6 +23,7 @@ class ValueChart extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dataAsync = ref.watch(chartDataProvider(dashContext));
     final range = ref.watch(chartRangeProvider);
+    final currency = ref.watch(displayCurrencyProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,7 +61,7 @@ class ValueChart extends ConsumerWidget {
                     child: Text('Brak danych',
                         style: TextStyle(color: AppColors.textSecondary)),
                   )
-                : _SfChart(points: points, range: range),
+                : _SfChart(points: points, range: range, currency: currency),
           ),
         ),
         const SizedBox(height: 8),
@@ -136,8 +138,9 @@ class _ChartArea extends StatelessWidget {
 class _SfChart extends StatelessWidget {
   final List<ChartPoint> points;
   final ChartRange range;
+  final String currency;
 
-  const _SfChart({required this.points, required this.range});
+  const _SfChart({required this.points, required this.range, required this.currency});
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +233,7 @@ class _SfChart extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  moneyCcy(value.toDouble(), 'PLN'),
+                  moneyCcy(value.toDouble(), currency),
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 13,

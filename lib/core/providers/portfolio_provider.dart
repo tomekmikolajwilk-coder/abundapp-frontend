@@ -1,15 +1,64 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/portfolio_api.dart';
+import '../models/holding.dart';
 import '../models/portfolio.dart';
 import '../models/pnl_period.dart';
 import 'preferences_provider.dart';
 
+// --- Wybrana waluta wyświetlania ---
+//
+// null = waluta preferowana usera (domyślny, niezmieniony tryb).
+// Inna wartość = jednorazowy podgląd majątku w tej walucie (po dzisiejszym
+// kursie). Nie zmienia preferred_currency na backendzie.
+final selectedCurrencyProvider = StateProvider<String?>((ref) => null);
+
+// Lista walut dostępna w pickerze.
+final currenciesProvider = FutureProvider<List<String>>((ref) async {
+  return fetchCurrencies();
+});
+
 // --- Dane z API ---
 
-final portfolioProvider = FutureProvider<Portfolio>((ref) async {
+// Portfel zawsze w walucie preferowanej — źródło baseline'u "ostatniej wizyty"
+// oraz bazowych value_usd. Trzymany osobno, żeby podgląd w innej walucie nie
+// zatruł zapisywanego baseline'u.
+final livePreferredPortfolioProvider = FutureProvider<Portfolio>((ref) async {
   return fetchPortfolio();
 });
+
+// Portfel do wyświetlenia: preferowany albo przeliczony na wybraną walutę.
+final portfolioProvider = FutureProvider<Portfolio>((ref) async {
+  final sel = ref.watch(selectedCurrencyProvider);
+  if (sel == null) return ref.watch(livePreferredPortfolioProvider.future);
+  return fetchPortfolio(currency: sel);
+});
+
+// Etykieta waluty wyświetlania — dla miejsc bez dostępu do modelu (np. tooltip
+// wykresu).
+final displayCurrencyProvider = Provider<String>((ref) {
+  final sel = ref.watch(selectedCurrencyProvider);
+  if (sel != null) return sel;
+  return ref.watch(portfolioProvider).valueOrNull?.currency ?? 'PLN';
+});
+
+// Przelicza portfel trzymany w walucie preferowanej na wybraną walutę,
+// korzystając z jednolitego dzisiejszego kursu (value_usd × rate).
+Portfolio _toSelectedCurrency(Portfolio p, String currency, double rate) {
+  return Portfolio(
+    currency: currency,
+    holdings: p.holdings
+        .map((h) => Holding(
+              assetId: h.assetId,
+              category: h.category,
+              amount: h.amount,
+              priceUsd: h.priceUsd,
+              valueUsd: h.valueUsd,
+              valueCcy: h.valueUsd * rate,
+            ))
+        .toList(),
+  );
+}
 
 // --- Lokalny baseline "od ostatniej wizyty" ---
 //
@@ -86,22 +135,31 @@ final availablePeriodsProvider = Provider<List<PnlPeriod>>((ref) {
 
 final periodSnapshotProvider = FutureProvider<Portfolio?>((ref) async {
   final period = ref.watch(selectedPeriodProvider);
+  final sel = ref.watch(selectedCurrencyProvider);
   final now = DateTime.now();
 
   if (period == PnlPeriod.lastVisit) {
-    // Lokalny baseline zamiast zatrutego backendowego /last-visit
-    return ref.watch(visitBaselineProvider);
+    // Lokalny baseline zamiast zatrutego backendowego /last-visit.
+    final baseline = ref.watch(visitBaselineProvider);
+    if (baseline == null || sel == null) return baseline;
+    // Baseline trzymany jest w walucie preferowanej — przeliczamy go na wybraną
+    // walutę dzisiejszym kursem wyprowadzonym z bieżącego portfela (kurs jest
+    // jednolity: totalValueCcy_selected / totalValueUsd).
+    final live = ref.watch(portfolioProvider).valueOrNull;
+    if (live == null || live.totalValueUsd == 0) return null;
+    final rate = live.totalValueCcy / live.totalValueUsd;
+    return _toSelectedCurrency(baseline, sel, rate);
   }
 
   if (period == PnlPeriod.allTime) {
     final dates = await ref.watch(snapshotDatesProvider.future);
     if (dates.isEmpty) return null;
-    return fetchPortfolioSnapshot(dates.last); // najstarsza data
+    return fetchPortfolioSnapshot(dates.last, currency: sel); // najstarsza data
   }
 
   final date = period.snapshotDate(now);
   if (date == null) return null;
-  return fetchPortfolioSnapshot(date);
+  return fetchPortfolioSnapshot(date, currency: sel);
 });
 
 // --- PnL: aktualna wartość minus snapshot z wybranego okresu ---

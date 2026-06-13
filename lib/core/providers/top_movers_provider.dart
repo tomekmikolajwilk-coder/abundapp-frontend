@@ -61,7 +61,11 @@ final topMoversProvider =
 /// narysowania sparkline na karcie movera. Jeden lekki request per aktywo.
 final moverSparklineProvider =
     FutureProvider.family<List<double>, String>((ref, assetId) async {
-  final raw = await fetchSnapshotHistory(categoryId: null, assetId: assetId);
+  final raw = await fetchSnapshotHistory(
+    categoryId: null,
+    assetId: assetId,
+    currency: ref.watch(selectedCurrencyProvider),
+  );
   final values = raw.map((r) => (r['value'] as num).toDouble()).toList();
   if (values.length > 30) return values.sublist(values.length - 30);
   return values;

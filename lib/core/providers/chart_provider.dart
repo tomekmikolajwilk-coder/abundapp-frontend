@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/portfolio_api.dart';
 import '../models/chart_point.dart';
 import '../../features/dashboard/dashboard_context.dart';
+import 'portfolio_provider.dart';
 
 // Wybrany rolling zakres wykresu — zapamiętany globalnie
 final chartRangeProvider =
@@ -13,6 +14,7 @@ final chartDataProvider = FutureProvider.family<List<ChartPoint>, DashboardConte
     final raw = await fetchSnapshotHistory(
       categoryId: dashContext.categoryId,
       assetId: dashContext.assetId,
+      currency: ref.watch(selectedCurrencyProvider),
     );
 
     // Zawsze zwracamy CAŁĄ historię — zakres czasu (1M/3M/1R/MAX) ustawia tylko
