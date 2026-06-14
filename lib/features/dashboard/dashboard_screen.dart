@@ -4,6 +4,7 @@ import '../../core/providers/portfolio_provider.dart';
 import '../../core/providers/preferences_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/allocation_chart.dart';
+import '../../shared/widgets/asset_avatar.dart';
 import '../../shared/widgets/donut_chart.dart';
 import '../../shared/widgets/pnl_header.dart';
 import '../../shared/widgets/top_movers.dart';
@@ -61,6 +62,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               color: AppColors.textPrimary, size: 18),
                         ),
                       ),
+                    if (widget.context.level == DashboardLevel.category) ...[
+                      AssetAvatar.category(widget.context.categoryId!,
+                          size: 30),
+                      const SizedBox(width: 10),
+                    ] else if (widget.context.level ==
+                        DashboardLevel.asset) ...[
+                      AssetAvatar.asset(
+                        assetId: widget.context.assetId!,
+                        category: widget.context.categoryId!,
+                        size: 30,
+                      ),
+                      const SizedBox(width: 10),
+                    ],
                     Text(
                       widget.context.title,
                       style: Theme.of(ctx).textTheme.titleLarge,
@@ -242,6 +256,9 @@ class _CurrencyButton extends ConsumerWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            AssetAvatar.asset(
+                assetId: label, category: 'currency', size: 22),
+            const SizedBox(width: 6),
             Text(
               label,
               style: const TextStyle(
@@ -374,6 +391,8 @@ class _CurrencyRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Row(
           children: [
+            AssetAvatar.asset(assetId: code, category: 'currency', size: 26),
+            const SizedBox(width: 12),
             Text(
               code,
               style: TextStyle(

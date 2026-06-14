@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
 import '../../features/dashboard/dashboard_screen.dart';
+import 'asset_avatar.dart';
 import 'chart_reveal.dart';
 
 class TopMovers extends ConsumerWidget {
@@ -139,12 +140,21 @@ class _MoverCard extends ConsumerWidget {
           // Symbol + strzałka
           Row(
             children: [
-              Text(
-                mover.assetId,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
+              AssetAvatar.asset(
+                assetId: mover.assetId,
+                category: mover.category,
+                size: 26,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  mover.assetId,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               const Spacer(),

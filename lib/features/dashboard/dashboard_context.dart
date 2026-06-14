@@ -32,6 +32,7 @@ class DashboardContext {
 String categoryLabel(String id) => switch (id) {
       'crypto' => 'Krypto',
       'stock' => 'Akcje',
+      'etf' => 'ETF-y',
       'metal' => 'Metale',
       'currency' => 'Gotówka',
       _ => id,

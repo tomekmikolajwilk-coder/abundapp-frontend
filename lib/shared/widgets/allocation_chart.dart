@@ -4,6 +4,7 @@ import '../../core/models/holding.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../features/dashboard/dashboard_context.dart';
+import 'asset_avatar.dart';
 import 'chart_reveal.dart';
 
 class AllocationChart extends ConsumerWidget {
@@ -47,6 +48,14 @@ class AllocationChart extends ConsumerWidget {
               percent: percent,
               value: s.value,
               currency: portfolio.currency,
+              leading: dashContext.level == DashboardLevel.all
+                  ? AssetAvatar.category(s.id, size: 22, ringColor: color)
+                  : AssetAvatar.asset(
+                      assetId: s.id,
+                      category: dashContext.categoryId!,
+                      size: 22,
+                      ringColor: color,
+                    ),
               isSelected: isSelected,
               isDimmed: isDimmed,
               onTap: () => onSegmentTap(i, s.id),
@@ -99,6 +108,7 @@ class _BarRow extends StatelessWidget {
   final double percent;
   final double value;
   final String currency;
+  final Widget leading;
   final bool isSelected;
   final bool isDimmed;
   final VoidCallback onTap;
@@ -109,6 +119,7 @@ class _BarRow extends StatelessWidget {
     required this.percent,
     required this.value,
     required this.currency,
+    required this.leading,
     required this.isSelected,
     required this.isDimmed,
     required this.onTap,
@@ -126,9 +137,11 @@ class _BarRow extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              leading,
+              const SizedBox(width: 8),
               // Nazwa
               SizedBox(
-                width: 68,
+                width: 56,
                 child: Text(
                   label,
                   style: TextStyle(

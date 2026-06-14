@@ -6,6 +6,7 @@ import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
+import 'asset_avatar.dart';
 import 'chart_reveal.dart';
 
 class DonutChart extends ConsumerWidget {
@@ -106,6 +107,14 @@ class DonutChart extends ConsumerWidget {
                 percent: percent,
                 value: s.value,
                 currency: portfolio.currency,
+                leading: dashContext.level == DashboardLevel.all
+                    ? AssetAvatar.category(s.id, size: 28, ringColor: color)
+                    : AssetAvatar.asset(
+                        assetId: s.id,
+                        category: dashContext.categoryId!,
+                        size: 28,
+                        ringColor: color,
+                      ),
                 isSelected: i == selectedIndex,
                 isDimmed: selectedIndex != null && i != selectedIndex,
                 onTap: () => onSegmentTap(i, s.id),
@@ -247,6 +256,7 @@ class _LegendRow extends StatelessWidget {
   final double percent;
   final double value;
   final String currency;
+  final Widget leading;
   final bool isSelected;
   final bool isDimmed;
   final VoidCallback onTap;
@@ -257,6 +267,7 @@ class _LegendRow extends StatelessWidget {
     required this.percent,
     required this.value,
     required this.currency,
+    required this.leading,
     required this.isSelected,
     required this.isDimmed,
     required this.onTap,
@@ -278,17 +289,7 @@ class _LegendRow extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 6, spreadRadius: 1),
-                  ],
-                ),
-              ),
+              leading,
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
