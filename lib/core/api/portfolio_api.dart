@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/portfolio.dart';
 
@@ -19,7 +20,8 @@ Map<String, String> get _headers => {
 // reszta apki nie musiała znać tego pola, podmieniamy je na miejscu: value_ccy
 // staje się wartością w wybranej walucie, a etykieta `currency` — wybraną
 // walutą. Dzięki temu modele i widgety działają bez zmian.
-Map<String, dynamic> _remapSelectedCurrency(
+@visibleForTesting
+Map<String, dynamic> remapSelectedCurrency(
   Map<String, dynamic> json,
   String currency,
 ) {
@@ -41,7 +43,7 @@ Future<Portfolio> fetchPortfolio({String? currency}) async {
 
   if (response.statusCode == 200) {
     var json = jsonDecode(response.body) as Map<String, dynamic>;
-    if (currency != null) json = _remapSelectedCurrency(json, currency);
+    if (currency != null) json = remapSelectedCurrency(json, currency);
     return Portfolio.fromJson(json);
   }
   throw Exception('Failed to load portfolio: ${response.statusCode}');
@@ -59,7 +61,7 @@ Future<Portfolio?> fetchPortfolioSnapshot(String date, {String? currency}) async
 
   if (response.statusCode == 200) {
     var json = jsonDecode(response.body) as Map<String, dynamic>;
-    if (currency != null) json = _remapSelectedCurrency(json, currency);
+    if (currency != null) json = remapSelectedCurrency(json, currency);
     return Portfolio.fromJson(json);
   }
   if (response.statusCode == 404) return null;
@@ -109,6 +111,18 @@ Future<List<Map<String, dynamic>>> fetchSnapshotHistory({
   if (response.statusCode != 200) return [];
 
   final json = jsonDecode(response.body) as Map<String, dynamic>;
+  return parseHistoryPoints(json, currency);
+}
+
+/// Przekształca surową odpowiedź /value-history na posortowaną listę punktów
+/// {date, value, currency}. W trybie wybranej waluty (`currency != null`)
+/// wartości i etykieta pochodzą z `value_selected`, w przeciwnym razie z
+/// `value` i pola `currency` z odpowiedzi.
+@visibleForTesting
+List<Map<String, dynamic>> parseHistoryPoints(
+  Map<String, dynamic> json,
+  String? currency,
+) {
   // W trybie wybranej waluty etykieta osi i wartości pochodzą z value_selected.
   final label = currency ?? json['currency'] as String?;
   final points = (json['points'] as List<dynamic>).cast<Map<String, dynamic>>();

@@ -287,6 +287,15 @@ class _CurrencyButton extends ConsumerWidget {
   }
 }
 
+/// Kolejność walut w pickerze: preferowana na górze (jeśli istnieje na liście),
+/// reszta w dotychczasowej kolejności (lista z API jest już alfabetyczna).
+List<String> orderedCurrencies(List<String> currencies, String? preferred) {
+  return [
+    if (preferred != null && currencies.contains(preferred)) preferred,
+    ...currencies.where((c) => c != preferred),
+  ];
+}
+
 class _CurrencySheet extends ConsumerWidget {
   const _CurrencySheet();
 
@@ -337,12 +346,7 @@ class _CurrencySheet extends ConsumerWidget {
                       style: TextStyle(color: AppColors.textSecondary)),
                 ),
                 data: (currencies) {
-                  // Preferowana na górze, reszta w kolejności alfabetycznej.
-                  final ordered = [
-                    if (preferred != null && currencies.contains(preferred))
-                      preferred,
-                    ...currencies.where((c) => c != preferred),
-                  ];
+                  final ordered = orderedCurrencies(currencies, preferred);
                   return ListView(
                     shrinkWrap: true,
                     children: ordered

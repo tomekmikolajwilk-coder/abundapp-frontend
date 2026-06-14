@@ -1,13 +1,13 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/models/holding.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
 import 'asset_avatar.dart';
 import 'chart_reveal.dart';
+import 'chart_segments.dart';
 
 class DonutChart extends ConsumerWidget {
   final DashboardContext dashContext;
@@ -29,7 +29,7 @@ class DonutChart extends ConsumerWidget {
       loading: () => const _ChartSkeleton(),
       error: (err, st) => const SizedBox.shrink(),
       data: (portfolio) {
-        final segments = _buildSegments(portfolio.holdings, dashContext);
+        final segments = buildChartSegments(portfolio.holdings, dashContext);
         if (segments.isEmpty) return const SizedBox.shrink();
 
         final total = segments.fold(0.0, (sum, s) => sum + s.value);
@@ -154,7 +154,7 @@ class _DefaultLabel extends StatelessWidget {
 }
 
 class _SelectedLabel extends StatelessWidget {
-  final _Segment segment;
+  final ChartSegment segment;
   final double total;
   final VoidCallback onGo;
 
@@ -213,39 +213,6 @@ class _SelectedLabel extends StatelessWidget {
       ),
     );
   }
-}
-
-// --- Model segmentu ---
-
-class _Segment {
-  final String id;
-  final String label;
-  final double value;
-
-  const _Segment({required this.id, required this.label, required this.value});
-}
-
-List<_Segment> _buildSegments(List<Holding> holdings, DashboardContext ctx) {
-  if (ctx.level == DashboardLevel.all) {
-    final map = <String, double>{};
-    for (final h in holdings) {
-      map[h.category] = (map[h.category] ?? 0) + h.valueCcy;
-    }
-    return map.entries
-        .map((e) => _Segment(id: e.key, label: categoryLabel(e.key), value: e.value))
-        .toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-  }
-
-  if (ctx.level == DashboardLevel.category) {
-    return holdings
-        .where((h) => h.category == ctx.categoryId)
-        .map((h) => _Segment(id: h.assetId, label: h.assetId, value: h.valueCcy))
-        .toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-  }
-
-  return [];
 }
 
 // --- Legenda ---

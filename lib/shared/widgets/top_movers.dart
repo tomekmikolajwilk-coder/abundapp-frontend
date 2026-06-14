@@ -10,6 +10,57 @@ import '../../features/dashboard/dashboard_screen.dart';
 import 'asset_avatar.dart';
 import 'chart_reveal.dart';
 
+/// Wybiera karty do sekcji „Top movers" z listy posortowanej po sile ruchu.
+///
+/// Reguły:
+/// - <2 aktywa → pusta lista (nie ma czego rankować, sekcja się chowa);
+/// - ≥4 aktywa → po 2 z każdej strony (cel 4 karty), inaczej po 1 (cel 2);
+/// - najpierw `perSide` gainerów i loserów, potem dopełnienie brakujących
+///   slotów mocniejszą stroną (po |%|), żeby utrzymać stałą liczbę kart;
+/// - finalna kolejność: gainery malejąco, potem losery (najmocniejszy spadek).
+List<TopMover> selectTopMovers(List<TopMover> movers) {
+  // <2 aktywa → nie ma czego rankować.
+  if (movers.length < 2) return const [];
+
+  // ≥4 aktywa → 4 karty (cel 2+2); mniej → 2 karty (cel 1+1).
+  final perSide = movers.length >= 4 ? 2 : 1;
+  final target = perSide * 2;
+
+  final gainers = movers
+      .where((m) => m.pricePct != null && m.pricePct! > 0)
+      .toList()
+    ..sort((a, b) => b.pricePct!.compareTo(a.pricePct!));
+  final losers = movers
+      .where((m) => m.pricePct != null && m.pricePct! < 0)
+      .toList()
+    ..sort((a, b) => a.pricePct!.compareTo(b.pricePct!));
+
+  // Najpierw po `perSide` z każdej strony, potem dopełniamy brakujące sloty
+  // mocniejszą stroną (po |%|), żeby utrzymać stałą liczbę kart.
+  final selected = <TopMover>[
+    ...gainers.take(perSide),
+    ...losers.take(perSide),
+  ];
+  if (selected.length < target) {
+    final leftovers = [
+      ...gainers.skip(perSide),
+      ...losers.skip(perSide),
+    ]..sort((a, b) => b.pricePct!.abs().compareTo(a.pricePct!.abs()));
+    selected.addAll(leftovers.take(target - selected.length));
+  }
+
+  // Kolejność: gainery (malejąco) przed loserami (najmocniejszy spadek).
+  selected.sort((a, b) {
+    final aUp = a.pricePct! > 0, bUp = b.pricePct! > 0;
+    if (aUp != bUp) return aUp ? -1 : 1;
+    return aUp
+        ? b.pricePct!.compareTo(a.pricePct!)
+        : a.pricePct!.compareTo(b.pricePct!);
+  });
+
+  return selected;
+}
+
 class TopMovers extends ConsumerWidget {
   final DashboardContext dashContext;
 
@@ -23,48 +74,10 @@ class TopMovers extends ConsumerWidget {
     }
 
     final movers = ref.watch(topMoversProvider(dashContext));
+    final selected = selectTopMovers(movers);
 
-    // <2 aktywa → nie ma czego rankować, chowamy sekcję.
-    if (movers.length < 2) return const SizedBox.shrink();
-
-    // ≥4 aktywa → 4 karty (cel 2+2); mniej → 2 karty (cel 1+1).
-    final perSide = movers.length >= 4 ? 2 : 1;
-    final target = perSide * 2;
-
-    final gainers = movers
-        .where((m) => m.pricePct != null && m.pricePct! > 0)
-        .toList()
-      ..sort((a, b) => b.pricePct!.compareTo(a.pricePct!));
-    final losers = movers
-        .where((m) => m.pricePct != null && m.pricePct! < 0)
-        .toList()
-      ..sort((a, b) => a.pricePct!.compareTo(b.pricePct!));
-
-    // Najpierw po `perSide` z każdej strony, potem dopełniamy brakujące sloty
-    // mocniejszą stroną (po |%|), żeby utrzymać stałą liczbę kart.
-    final selected = <TopMover>[
-      ...gainers.take(perSide),
-      ...losers.take(perSide),
-    ];
-    if (selected.length < target) {
-      final leftovers = [
-        ...gainers.skip(perSide),
-        ...losers.skip(perSide),
-      ]..sort((a, b) => b.pricePct!.abs().compareTo(a.pricePct!.abs()));
-      selected.addAll(leftovers.take(target - selected.length));
-    }
-
-    // Brak jakiegokolwiek ruchu → chowamy sekcję.
+    // Brak kart (za mało aktywów lub żadnego ruchu) → chowamy sekcję.
     if (selected.isEmpty) return const SizedBox.shrink();
-
-    // Kolejność: gainery (malejąco) przed loserami (najmocniejszy spadek).
-    selected.sort((a, b) {
-      final aUp = a.pricePct! > 0, bUp = b.pricePct! > 0;
-      if (aUp != bUp) return aUp ? -1 : 1;
-      return aUp
-          ? b.pricePct!.compareTo(a.pricePct!)
-          : a.pricePct!.compareTo(b.pricePct!);
-    });
 
     final currency = ref.watch(portfolioProvider).valueOrNull?.currency ?? '';
 
