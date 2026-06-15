@@ -64,6 +64,19 @@ void main() {
       expect(c.read(pnlProvider), 0);
     });
 
+    test('snapshot bez pozycji (pusty last-visit) → 0, nie cała wartość',
+        () async {
+      final c = ProviderContainer(overrides: [
+        portfolioProvider.overrideWith(
+            (ref) async => _portfolio('PLN', [_h('BTC', 'crypto', 100, 500)])),
+        periodSnapshotProvider.overrideWith((ref) async => _portfolio('PLN', [])),
+      ]);
+      addTearDown(c.dispose);
+      await c.read(portfolioProvider.future);
+      await c.read(periodSnapshotProvider.future);
+      expect(c.read(pnlProvider), 0);
+    });
+
     test('current - snapshot (po totalValueCcy)', () async {
       final c = ProviderContainer(overrides: [
         portfolioProvider.overrideWith(

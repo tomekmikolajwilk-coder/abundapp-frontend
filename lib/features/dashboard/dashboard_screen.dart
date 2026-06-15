@@ -46,6 +46,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final showEmptyState =
         widget.context.isTopLevel && portfolio != null && portfolio.holdings.isEmpty;
 
+    // Email zalogowanego konta — do pokazania w menu (diagnostyka „kto jest
+    // zalogowany"). ref.watch(sessionProvider) wymusza odświeżenie po zmianie
+    // sesji.
+    ref.watch(sessionProvider);
+    final userEmail = ref.read(authRepositoryProvider).currentUser?.email;
+
     return GestureDetector(
       onTap: _clearSelection,
       behavior: HitTestBehavior.translucent,
@@ -104,8 +110,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ref.read(authRepositoryProvider).signOut();
                       }
                     },
-                    itemBuilder: (_) => const [
+                    itemBuilder: (_) => [
                       PopupMenuItem(
+                        enabled: false,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Zalogowano jako',
+                                style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 11)),
+                            const SizedBox(height: 2),
+                            Text(userEmail ?? '—',
+                                style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuDivider(),
+                      const PopupMenuItem(
                         value: 'logout',
                         child: Row(
                           children: [

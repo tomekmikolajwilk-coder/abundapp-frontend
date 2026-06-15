@@ -33,8 +33,11 @@ class PnlHeader extends ConsumerWidget {
         final snapshot = snapshotAsync.valueOrNull;
 
         final currentValue = _filteredValue(portfolio);
-        final snapshotValue =
-            snapshot != null ? _filteredValue(snapshot) : null;
+        // Pusty/błędny snapshot (last-visit nic nie zwrócił) traktujemy jak brak
+        // baseline'u → PnL 0, zamiast pokazywać całą wartość portfela jako zysk.
+        final snapshotValue = (snapshot != null && snapshot.holdings.isNotEmpty)
+            ? _filteredValue(snapshot)
+            : null;
 
         final effectivePnl =
             snapshotValue != null ? currentValue - snapshotValue : 0.0;

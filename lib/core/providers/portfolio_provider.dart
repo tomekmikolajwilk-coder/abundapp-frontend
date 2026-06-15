@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../api/portfolio_api.dart';
 import '../models/holding.dart';
 import '../models/portfolio.dart';
@@ -76,15 +77,33 @@ final visitBaselineProvider =
         VisitBaselineNotifier.new);
 
 class VisitBaselineNotifier extends Notifier<Portfolio?> {
-  static const _kJson = 'visit_baseline_json';
+  static const _kJsonBase = 'visit_baseline_json';
 
   bool _recordedThisSession = false;
+
+  // Klucz baseline'u jest per-user — inaczej baseline jednego usera wyciekłby do
+  // drugiego po przelogowaniu (PnL liczony względem cudzego portfela). Gdy nie ma
+  // sesji (np. w testach bez Supabase.initialize), spadamy do bazowego klucza.
+  String get _key {
+    final uid = _safeUid();
+    return uid == null ? _kJsonBase : '${_kJsonBase}_$uid';
+  }
+
+  // Supabase.instance rzuca, jeśli SDK nie zostało zainicjowane (testy) — łapiemy
+  // i zwracamy null, żeby baseline działał na bazowym kluczu.
+  String? _safeUid() {
+    try {
+      return Supabase.instance.client.auth.currentUser?.id;
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   Portfolio? build() {
     // Baseline z poprzedniej sesji — zamrażamy na bieżącą sesję.
     final prefs = ref.read(sharedPreferencesProvider);
-    final json = prefs.getString(_kJson);
+    final json = prefs.getString(_key);
     if (json == null) return null;
     try {
       return Portfolio.fromJson(jsonDecode(json) as Map<String, dynamic>);
@@ -101,7 +120,7 @@ class VisitBaselineNotifier extends Notifier<Portfolio?> {
     _recordedThisSession = true;
     ref
         .read(sharedPreferencesProvider)
-        .setString(_kJson, jsonEncode(current.toJson()));
+        .setString(_key, jsonEncode(current.toJson()));
   }
 }
 
@@ -169,7 +188,8 @@ final pnlProvider = Provider<double?>((ref) {
   final snapshot = ref.watch(periodSnapshotProvider).valueOrNull;
 
   if (current == null) return null;
-  // brak snapshotu (pierwsze uruchomienie) → 0
-  if (snapshot == null) return 0;
+  // Brak snapshotu (pierwsze uruchomienie) LUB snapshot bez pozycji (pusty/błędny
+  // last-visit) → PnL 0. Inaczej pusty snapshot dałby PnL = cała wartość portfela.
+  if (snapshot == null || snapshot.holdings.isEmpty) return 0;
   return current.totalValueCcy - snapshot.totalValueCcy;
 });
