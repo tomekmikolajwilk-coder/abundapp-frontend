@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/providers/auth_provider.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/providers/preferences_provider.dart';
 import '../../core/theme/app_theme.dart';
@@ -38,6 +39,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         (p) => ref.read(visitBaselineProvider.notifier).recordVisit(p),
       );
     });
+
+    // Pusty portfel na poziomie głównym (np. świeżo zarejestrowany user) →
+    // zamiast zer i pustych wykresów pokazujemy zachętę do dodania aktywów.
+    final portfolio = ref.watch(portfolioProvider).valueOrNull;
+    final showEmptyState =
+        widget.context.isTopLevel && portfolio != null && portfolio.holdings.isEmpty;
 
     return GestureDetector(
       onTap: _clearSelection,
@@ -88,49 +95,76 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
                 actions: [
                   const _CurrencyButton(),
-                  IconButton(
+                  PopupMenuButton<String>(
                     icon: const Icon(Icons.settings_outlined,
                         color: AppColors.textSecondary),
-                    onPressed: () {},
+                    color: AppColors.surfaceElevated,
+                    onSelected: (value) {
+                      if (value == 'logout') {
+                        ref.read(authRepositoryProvider).signOut();
+                      }
+                    },
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(
+                        value: 'logout',
+                        child: Row(
+                          children: [
+                            Icon(Icons.logout, size: 18,
+                                color: AppColors.textPrimary),
+                            SizedBox(width: 10),
+                            Text('Wyloguj się',
+                                style: TextStyle(color: AppColors.textPrimary)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
 
-              SliverPadding(
-                padding: const EdgeInsets.all(20),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    PnlHeader(
-                      context: widget.context,
-                      selectedSegmentId: _selectedSegmentId,
-                    ),
-                    const SizedBox(height: 32),
-
-                    if (widget.context.level != DashboardLevel.asset) ...[
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: const _ChartTypePicker(),
+              if (showEmptyState)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _EmptyPortfolio(),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.all(20),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      PnlHeader(
+                        context: widget.context,
+                        selectedSegmentId: _selectedSegmentId,
                       ),
-                      const SizedBox(height: 12),
-                      _buildChart(ctx),
-                    ],
+                      const SizedBox(height: 32),
 
-                    const SizedBox(height: 24),
-                    ValueChart(dashContext: widget.context),
-                    const SizedBox(height: 24),
-                    TopMovers(dashContext: widget.context),
-                  ]),
+                      if (widget.context.level != DashboardLevel.asset) ...[
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: const _ChartTypePicker(),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildChart(ctx),
+                      ],
+
+                      const SizedBox(height: 24),
+                      ValueChart(dashContext: widget.context),
+                      const SizedBox(height: 24),
+                      TopMovers(dashContext: widget.context),
+                    ]),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
 
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          backgroundColor: AppColors.accent,
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
+        floatingActionButton: showEmptyState
+            ? null
+            : FloatingActionButton(
+                onPressed: () {},
+                backgroundColor: AppColors.accent,
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
       ),
     );
   }
@@ -185,6 +219,60 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
       );
     }
+  }
+}
+
+/// Stan pustego portfela — pokazywany nowemu userowi bez aktywów.
+/// CTA na razie bez akcji (placeholder pod przyszły flow dodawania aktywów).
+class _EmptyPortfolio extends StatelessWidget {
+  const _EmptyPortfolio();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 88,
+            height: 88,
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.account_balance_wallet_outlined,
+                size: 40, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 24),
+          Text('Twój portfel jest pusty',
+              style: theme.textTheme.displayMedium, textAlign: TextAlign.center),
+          const SizedBox(height: 12),
+          Text(
+            'Dodaj pierwsze aktywo — gotówkę, akcje, złoto albo krypto — '
+            'a zobaczysz tutaj wartość całego majątku.',
+            style: theme.textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 28),
+          FilledButton.icon(
+            onPressed: () {}, // TODO: flow dodawania aktywów
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text('Dodaj aktywa',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.accent,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

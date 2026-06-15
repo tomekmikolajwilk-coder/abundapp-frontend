@@ -1,19 +1,24 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/supabase_config.dart';
 import '../models/portfolio.dart';
 
-const _baseUrl = 'https://mrcjjyaljautuylpsssp.supabase.co/functions/v1';
-const _anonKey =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1yY2pqeWFsamF1dHV5bHBzc3NwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg5NjIxNjIsImV4cCI6MjA2NDUzODE2Mn0.9Fv4-e-4ntnxHXHFkRrnqFsqrXeq3VHCWdwKzGQhRLs';
+const _baseUrl = functionsBaseUrl;
 
-// TODO: zastąpić user_id tokenem JWT gdy auth będzie gotowy
-const _testUserId = '4ff2377f-a833-4a05-9930-391d84d4182d';
-
-Map<String, String> get _headers => {
-      'Authorization': 'Bearer $_anonKey',
-      'Content-Type': 'application/json',
-    };
+// Edge Functions są zabezpieczone JWT — user_id wyprowadzają z `sub` tokena,
+// więc nie wysyłamy go już w query. Liczy się access token zalogowanego usera
+// w nagłówku Authorization (fallback do anon key tylko dla publicznych zasobów
+// jak /assets, gdy sesji jeszcze nie ma).
+Map<String, String> get _headers {
+  final token = Supabase.instance.client.auth.currentSession?.accessToken;
+  return {
+    'Authorization': 'Bearer ${token ?? supabaseAnonKey}',
+    'apikey': supabaseAnonKey,
+    'Content-Type': 'application/json',
+  };
+}
 
 // Gdy poprosimy backend o ?currency=X, każdy holding dostaje dodatkowe pole
 // `value_selected` (wartość w wybranej walucie, po dzisiejszym kursie). Aby
@@ -36,7 +41,7 @@ Map<String, dynamic> remapSelectedCurrency(
 }
 
 Future<Portfolio> fetchPortfolio({String? currency}) async {
-  final params = {'user_id': _testUserId, 'currency': ?currency};
+  final params = {'currency': ?currency};
   final uri =
       Uri.parse('$_baseUrl/portfolio').replace(queryParameters: params);
   final response = await http.get(uri, headers: _headers);
@@ -51,7 +56,6 @@ Future<Portfolio> fetchPortfolio({String? currency}) async {
 
 Future<Portfolio?> fetchPortfolioSnapshot(String date, {String? currency}) async {
   final params = {
-    'user_id': _testUserId,
     'date': date,
     'currency': ?currency,
   };
@@ -84,7 +88,7 @@ Future<List<String>> fetchCurrencies() async {
 }
 
 Future<List<String>> fetchSnapshotDates() async {
-  final uri = Uri.parse('$_baseUrl/snapshot-dates?user_id=$_testUserId');
+  final uri = Uri.parse('$_baseUrl/snapshot-dates');
   final response = await http.get(uri, headers: _headers);
 
   if (response.statusCode == 200) {
@@ -101,7 +105,6 @@ Future<List<Map<String, dynamic>>> fetchSnapshotHistory({
 }) async {
   // Jeden endpoint zwraca całą serię czasową — zamiast N osobnych requestów.
   final params = {
-    'user_id': _testUserId,
     'category_id': ?categoryId,
     'asset_id': ?assetId,
     'currency': ?currency,
