@@ -76,6 +76,14 @@ class AssetAvatar extends StatelessWidget {
           fit: BoxFit.cover,
           errorBuilder: (_, _, _) => _initials(color),
         );
+      case 'real_estate':
+      case 'valuables':
+      case 'bonds':
+      case 'deposits':
+      case 'other':
+        // Aktywa manualne mają nazwy (nie tickery) — inicjały długiej nazwy
+        // wyglądałyby źle, więc pokazujemy ikonę kategorii.
+        return _categoryIcon(color);
       default:
         // akcje + metale → inicjały tickera
         return _initials(color);
@@ -89,19 +97,27 @@ class AssetAvatar extends StatelessWidget {
       'etf' => Icons.pie_chart,
       'metal' => Icons.workspace_premium,
       'currency' => Icons.payments,
+      'real_estate' => Icons.home_work,
+      'valuables' => Icons.diamond,
+      'bonds' => Icons.receipt_long,
+      'deposits' => Icons.savings,
+      'other' => Icons.widgets,
       _ => Icons.category,
     };
     return Center(child: Icon(icon, color: color, size: size * 0.52));
   }
 
   Widget _initials(Color color) {
+    // Długie nazwy (np. custom assety) jako pełny tekst są nieczytelne na małej
+    // ikonce — pokazujemy wtedy tylko pierwszą literę.
+    final text = id.length > 5 ? id.substring(0, 1).toUpperCase() : id.toUpperCase();
     return Center(
       child: Padding(
         padding: EdgeInsets.all(size * 0.16),
         child: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            id.toUpperCase(),
+            text,
             style: TextStyle(
               color: color,
               fontWeight: FontWeight.w700,
@@ -137,5 +153,10 @@ Color _categoryColor(String c) => switch (c) {
       'etf' => const Color(0xFFFD79A8),
       'metal' => const Color(0xFFFDAA5E),
       'currency' => const Color(0xFF74B9FF),
+      'real_estate' => const Color(0xFF55A3B2),
+      'valuables' => const Color(0xFFE56B94),
+      'bonds' => const Color(0xFF6FCF97),
+      'deposits' => const Color(0xFF7C9CF0),
+      'other' => const Color(0xFFA29BFE),
       _ => const Color(0xFFA29BFE),
     };

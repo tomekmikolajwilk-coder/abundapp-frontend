@@ -29,7 +29,7 @@ class Portfolio {
       holdings.fold(0, (sum, h) => sum + h.valueCcy);
 
   double valueCcyForCategory(String categoryId) => holdings
-      .where((h) => h.category == categoryId)
+      .where((h) => h.groupCategory == categoryId)
       .fold(0, (sum, h) => sum + h.valueCcy);
 
   double valueCcyForAsset(String assetId) => holdings

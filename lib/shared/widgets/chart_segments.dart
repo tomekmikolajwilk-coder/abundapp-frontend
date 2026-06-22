@@ -24,9 +24,11 @@ List<ChartSegment> buildChartSegments(
   DashboardContext ctx,
 ) {
   if (ctx.level == DashboardLevel.all) {
+    // Grupujemy po kategorii wyświetlania — ETF z ustawioną display_category
+    // (np. obligacje) ląduje w docelowej kategorii, nie w „ETF".
     final map = <String, double>{};
     for (final h in holdings) {
-      map[h.category] = (map[h.category] ?? 0) + h.valueCcy;
+      map[h.groupCategory] = (map[h.groupCategory] ?? 0) + h.valueCcy;
     }
     return map.entries
         .map((e) =>
@@ -37,9 +39,9 @@ List<ChartSegment> buildChartSegments(
 
   if (ctx.level == DashboardLevel.category) {
     return holdings
-        .where((h) => h.category == ctx.categoryId)
+        .where((h) => h.groupCategory == ctx.categoryId)
         .map((h) =>
-            ChartSegment(id: h.assetId, label: h.assetId, value: h.valueCcy))
+            ChartSegment(id: h.assetId, label: h.displayName, value: h.valueCcy))
         .toList()
       ..sort((a, b) => b.value.compareTo(a.value));
   }

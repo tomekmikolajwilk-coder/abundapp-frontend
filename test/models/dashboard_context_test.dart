@@ -11,8 +11,13 @@ void main() {
       expect(categoryLabel('currency'), 'Gotówka');
     });
 
+    test('kategorie manualne mają polskie etykiety', () {
+      expect(categoryLabel('real_estate'), 'Nieruchomości');
+      expect(categoryLabel('bonds'), 'Obligacje');
+    });
+
     test('nieznana kategoria → surowe id (fallback bez crasha)', () {
-      expect(categoryLabel('real_estate'), 'real_estate');
+      expect(categoryLabel('zzz_unknown'), 'zzz_unknown');
     });
   });
 

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/models/holding.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../features/dashboard/dashboard_context.dart';
 import 'asset_avatar.dart';
 import 'chart_reveal.dart';
 import 'chart_segments.dart';
+import 'redirect_rows.dart';
 
 class AllocationChart extends ConsumerWidget {
   final DashboardContext dashContext;
@@ -32,36 +34,51 @@ class AllocationChart extends ConsumerWidget {
 
         final total = segments.fold(0.0, (sum, s) => sum + s.value);
 
+        // Aktywa przeniesione stąd do innej kategorii (display_category) — np.
+        // ETF pokazywany w „Obligacje". Dopinamy je do listy wyszarzone, żeby
+        // user szukający w kategorii natywnej nie zgubił aktywa.
+        final redirected = dashContext.level == DashboardLevel.category
+            ? redirectedHoldings(portfolio.holdings, dashContext.categoryId!)
+            : const <Holding>[];
+
         return ChartReveal(
           child: Column(
-          children: segments.asMap().entries.map((e) {
-            final i = e.key;
-            final s = e.value;
-            final percent = total > 0 ? s.value / total * 100 : 0.0;
-            final color = AppColors.categoryColors[i % AppColors.categoryColors.length];
-            final isSelected = i == selectedIndex;
-            final isDimmed = selectedIndex != null && !isSelected;
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...segments.asMap().entries.map((e) {
+                final i = e.key;
+                final s = e.value;
+                final percent = total > 0 ? s.value / total * 100 : 0.0;
+                final color = AppColors
+                    .categoryColors[i % AppColors.categoryColors.length];
+                final isSelected = i == selectedIndex;
+                final isDimmed = selectedIndex != null && !isSelected;
 
-            return _BarRow(
-              color: color,
-              label: s.label,
-              percent: percent,
-              value: s.value,
-              currency: portfolio.currency,
-              leading: dashContext.level == DashboardLevel.all
-                  ? AssetAvatar.category(s.id, size: 22, ringColor: color)
-                  : AssetAvatar.asset(
-                      assetId: s.id,
-                      category: dashContext.categoryId!,
-                      size: 22,
-                      ringColor: color,
-                    ),
-              isSelected: isSelected,
-              isDimmed: isDimmed,
-              onTap: () => onSegmentTap(i, s.id),
-            );
-          }).toList(),
-        ),
+                return _BarRow(
+                  color: color,
+                  label: s.label,
+                  percent: percent,
+                  value: s.value,
+                  currency: portfolio.currency,
+                  leading: dashContext.level == DashboardLevel.all
+                      ? AssetAvatar.category(s.id, size: 22, ringColor: color)
+                      : AssetAvatar.asset(
+                          assetId: s.id,
+                          category: dashContext.categoryId!,
+                          size: 22,
+                          ringColor: color,
+                        ),
+                  isSelected: isSelected,
+                  isDimmed: isDimmed,
+                  onTap: () => onSegmentTap(i, s.id),
+                );
+              }),
+              if (redirected.isNotEmpty) ...[
+                const RedirectDivider(),
+                ...redirected.map((h) => RedirectRow(holding: h)),
+              ],
+            ],
+          ),
         );
       },
     );

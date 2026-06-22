@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
+import '../models/available_asset.dart';
 import '../models/portfolio.dart';
 
 const _baseUrl = functionsBaseUrl;
@@ -70,6 +71,57 @@ Future<Portfolio?> fetchPortfolioSnapshot(String date, {String? currency}) async
   }
   if (response.statusCode == 404) return null;
   throw Exception('Failed to load snapshot: ${response.statusCode}');
+}
+
+/// Aktywa rynkowe (cena znana backendowi) pogrupowane po kategorii — zasila
+/// picker w kreatorze dodawania. Klucz = kategoria (`crypto`, `stock`, `etf`,
+/// `metal`, `currency`), wartość = lista aktywów z ceną, posortowana po tickerze.
+Future<Map<String, List<AvailableAsset>>> fetchMarketAssets() async {
+  final uri = Uri.parse('$_baseUrl/assets');
+  final response = await http.get(uri, headers: _headers);
+  if (response.statusCode != 200) return {};
+
+  final json = jsonDecode(response.body) as Map<String, dynamic>;
+  final result = <String, List<AvailableAsset>>{};
+  for (final entry in json.entries) {
+    if (entry.value is! List) continue;
+    result[entry.key] = (entry.value as List<dynamic>)
+        .cast<Map<String, dynamic>>()
+        .map(AvailableAsset.fromJson)
+        .toList()
+      ..sort((a, b) => a.assetId.compareTo(b.assetId));
+  }
+  return result;
+}
+
+/// Dodaje aktywo do portfela. Dla market wysyłamy `asset_id` + `amount`; dla
+/// manual dochodzi obiekt `custom` (nazwa, wartość jednostki, waluta, ew.
+/// display_category i interest_rate). Endpoint POST /holdings powstaje w sesji
+/// backendowej — kontrakt opisany w docs/backend-holdings.md.
+Future<void> addHolding(Map<String, dynamic> body) async {
+  final uri = Uri.parse('$_baseUrl/holdings');
+  final response =
+      await http.post(uri, headers: _headers, body: jsonEncode(body));
+  if (response.statusCode >= 200 && response.statusCode < 300) return;
+  throw Exception('Failed to add holding: ${response.statusCode}');
+}
+
+/// Aktualizuje ilość i/lub wartość jednostki istniejącego holdingu (np. user
+/// zmienia wycenę mieszkania). PATCH /holdings/:id.
+Future<void> updateHolding(String id, Map<String, dynamic> body) async {
+  final uri = Uri.parse('$_baseUrl/holdings/$id');
+  final response =
+      await http.patch(uri, headers: _headers, body: jsonEncode(body));
+  if (response.statusCode >= 200 && response.statusCode < 300) return;
+  throw Exception('Failed to update holding: ${response.statusCode}');
+}
+
+/// Usuwa holding z portfela. DELETE /holdings/:id.
+Future<void> deleteHolding(String id) async {
+  final uri = Uri.parse('$_baseUrl/holdings/$id');
+  final response = await http.delete(uri, headers: _headers);
+  if (response.statusCode >= 200 && response.statusCode < 300) return;
+  throw Exception('Failed to delete holding: ${response.statusCode}');
 }
 
 /// Lista dostępnych walut (kategoria `currency` z /assets) — do pickera.

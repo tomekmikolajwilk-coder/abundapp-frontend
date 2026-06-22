@@ -23,7 +23,9 @@ final topMoversProvider =
 
   // Holdingi widoczne w tym kontekście.
   final holdings = current.holdings.where((h) {
-    if (ctx.level == DashboardLevel.category) return h.category == ctx.categoryId;
+    if (ctx.level == DashboardLevel.category) {
+      return h.groupCategory == ctx.categoryId;
+    }
     return true;
   });
 
@@ -40,7 +42,7 @@ final topMoversProvider =
     final valueDelta = then != null ? h.valueCcy - then.valueCcy : null;
     return TopMover(
       assetId: h.assetId,
-      label: h.assetId,
+      label: h.displayName,
       category: h.category,
       valueNow: h.valueCcy,
       pricePct: pricePct,

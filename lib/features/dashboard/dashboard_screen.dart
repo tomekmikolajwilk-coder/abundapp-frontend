@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/providers/preferences_provider.dart';
+import '../../core/models/holding.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/format.dart';
+import '../add_asset/add_asset_screen.dart';
+import '../add_asset/asset_builder.dart';
 import '../../shared/widgets/allocation_chart.dart';
 import '../../shared/widgets/asset_avatar.dart';
 import '../../shared/widgets/donut_chart.dart';
@@ -88,9 +92,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                       const SizedBox(width: 10),
                     ],
-                    Text(
-                      widget.context.title,
-                      style: Theme.of(ctx).textTheme.titleLarge,
+                    Flexible(
+                      child: Text(
+                        widget.context.title,
+                        style: Theme.of(ctx).textTheme.titleLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     if (widget.context.isTopLevel) ...[
                       const SizedBox(width: 4),
@@ -147,9 +155,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
 
               if (showEmptyState)
-                const SliverFillRemaining(
+                SliverFillRemaining(
                   hasScrollBody: false,
-                  child: _EmptyPortfolio(),
+                  child: _EmptyPortfolio(onAdd: () => _openAddAsset(ctx)),
                 )
               else
                 SliverPadding(
@@ -159,8 +167,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       PnlHeader(
                         context: widget.context,
                         selectedSegmentId: _selectedSegmentId,
+                        showValueBlock:
+                            widget.context.level != DashboardLevel.asset,
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(
+                          height: widget.context.level == DashboardLevel.asset
+                              ? 16
+                              : 32),
+
+                      if (widget.context.level == DashboardLevel.asset)
+                        _HoldingDetailCard(assetId: widget.context.assetId!),
 
                       if (widget.context.level != DashboardLevel.asset) ...[
                         Align(
@@ -185,9 +201,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         floatingActionButton: showEmptyState
             ? null
             : FloatingActionButton(
-                onPressed: () {},
-                backgroundColor: AppColors.accent,
-                child: const Icon(Icons.add, color: Colors.white),
+                onPressed: () => _openAddAsset(ctx),
+                backgroundColor: AppColors.positive,
+                foregroundColor: Colors.black,
+                shape: const CircleBorder(
+                  side: BorderSide(color: Colors.black, width: 2),
+                ),
+                child: const Icon(Icons.add, size: 28),
               ),
       ),
     );
@@ -221,6 +241,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           );
   }
 
+  void _openAddAsset(BuildContext ctx) {
+    Navigator.push(
+      ctx,
+      MaterialPageRoute(builder: (_) => const AddAssetScreen()),
+    );
+  }
+
   void _clearSelection() =>
       setState(() {
         _selectedChartIndex = null;
@@ -249,7 +276,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 /// Stan pustego portfela — pokazywany nowemu userowi bez aktywów.
 /// CTA na razie bez akcji (placeholder pod przyszły flow dodawania aktywów).
 class _EmptyPortfolio extends StatelessWidget {
-  const _EmptyPortfolio();
+  final VoidCallback onAdd;
+  const _EmptyPortfolio({required this.onAdd});
 
   @override
   Widget build(BuildContext context) {
@@ -281,7 +309,7 @@ class _EmptyPortfolio extends StatelessWidget {
           ),
           const SizedBox(height: 28),
           FilledButton.icon(
-            onPressed: () {}, // TODO: flow dodawania aktywów
+            onPressed: onAdd,
             icon: const Icon(Icons.add, color: Colors.white),
             label: const Text('Dodaj aktywa',
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
@@ -532,5 +560,285 @@ class _CurrencyRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Format ilości: liczba całkowita bez zer po przecinku, ułamki skrócone.
+String _fmtAmount(double v) =>
+    v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
+
+/// Ekran aktywa: „Twoje BTC w portfelu — X sztuk o wartości Y PLN", a pod
+/// spodem przycisk edycji (market → ilość, manual → ilość i wartość).
+class _HoldingDetailCard extends ConsumerWidget {
+  final String assetId;
+  const _HoldingDetailCard({required this.assetId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final portfolio = ref.watch(portfolioProvider).valueOrNull;
+    final matches = portfolio?.holdings
+            .where((h) => h.assetId == assetId)
+            .toList() ??
+        const <Holding>[];
+    if (matches.isEmpty) return const SizedBox.shrink();
+    final holding = matches.first;
+
+    final ccy = portfolio?.currency ?? 'PLN';
+    final unitValue = holding.amount == 0
+        ? holding.valueCcy
+        : holding.valueCcy / holding.amount;
+    final unitLabel = holding.category == 'currency'
+        ? holding.assetId
+        : (holding.isManual ? 'szt.' : assetId);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // „Twoje BTC w portfelu" — nazwa aktywa wyróżniona.
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 13),
+                children: [
+                  const TextSpan(text: 'Twoje '),
+                  TextSpan(
+                    text: holding.displayName,
+                    style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700),
+                  ),
+                  const TextSpan(text: ' w portfelu'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: const TextStyle(fontSize: 18, height: 1.3),
+                      children: [
+                        TextSpan(
+                          text: '${_fmtAmount(holding.amount)} $unitLabel ',
+                          style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        const TextSpan(
+                          text: 'o wartości ',
+                          style: TextStyle(color: AppColors.textSecondary),
+                        ),
+                        TextSpan(
+                          text: moneyCcy(holding.valueCcy, ccy),
+                          style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                IconButton(
+                  onPressed: () =>
+                      _openEditor(context, holding, unitValue, ccy),
+                  icon: const Icon(Icons.edit, size: 18, color: AppColors.accent),
+                  tooltip: holding.isManual
+                      ? 'Edytuj ilość i wartość'
+                      : 'Edytuj ilość',
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.surfaceElevated,
+                    shape: const CircleBorder(),
+                  ),
+                ),
+              ],
+            ),
+            // Aktywo przeniesione do innej kategorii — pokazujemy jego typ
+            // natywny i gdzie się wyświetla, żeby było jasne „co tu robi".
+            if (holding.displayCategory != null &&
+                holding.displayCategory != holding.category) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.swap_horiz,
+                      size: 15, color: AppColors.textSecondary),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'Typ: ${categoryLabel(holding.category)} · '
+                      'pokazywane w: ${categoryLabel(holding.groupCategory)}',
+                      style: const TextStyle(
+                          color: AppColors.textSecondary, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openEditor(
+      BuildContext context, Holding holding, double unitValue, String ccy) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) =>
+          _HoldingEditor(holding: holding, unitValue: unitValue, currency: ccy),
+    );
+  }
+}
+
+
+/// Bottom sheet edycji holdingu. Market → tylko ilość (cena jest rynkowa).
+/// Manual → ilość i wartość jednostki (user podaje wycenę sam).
+class _HoldingEditor extends ConsumerStatefulWidget {
+  final Holding holding;
+  final double unitValue;
+  final String currency;
+  const _HoldingEditor({
+    required this.holding,
+    required this.unitValue,
+    required this.currency,
+  });
+
+  @override
+  ConsumerState<_HoldingEditor> createState() => _HoldingEditorState();
+}
+
+class _HoldingEditorState extends ConsumerState<_HoldingEditor> {
+  late final TextEditingController _amountCtrl;
+  late final TextEditingController _valueCtrl;
+  String? _error;
+
+  bool get _editValue => widget.holding.isManual;
+
+  @override
+  void initState() {
+    super.initState();
+    _amountCtrl = TextEditingController(text: _trim(widget.holding.amount));
+    _valueCtrl = TextEditingController(text: _trim(widget.unitValue));
+  }
+
+  String _trim(double v) =>
+      v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
+
+  @override
+  void dispose() {
+    _amountCtrl.dispose();
+    _valueCtrl.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final amount = parseAmount(_amountCtrl.text);
+    if (amount == null || amount <= 0) {
+      return setState(() => _error = 'Podaj poprawną ilość.');
+    }
+    double? value;
+    if (_editValue) {
+      value = parseAmount(_valueCtrl.text);
+      if (value == null || value <= 0) {
+        return setState(() => _error = 'Podaj poprawną wartość.');
+      }
+    }
+    ref.read(holdingOverridesProvider.notifier).set(
+          widget.holding.assetId,
+          amount: amount,
+          unitValueCcy: value,
+        );
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final title = _editValue
+        ? 'Aktualizuj „${widget.holding.displayName}"'
+        : 'Zmień ilość — ${widget.holding.displayName}';
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600)),
+          const SizedBox(height: 20),
+          const Text('Ilość',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          const SizedBox(height: 8),
+          _sheetField(_amountCtrl),
+          if (_editValue) ...[
+            const SizedBox(height: 16),
+            Text('Wartość jednostki (${widget.currency})',
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 13)),
+            const SizedBox(height: 8),
+            _sheetField(_valueCtrl),
+          ],
+          if (_error != null) ...[
+            const SizedBox(height: 12),
+            Text(_error!,
+                style: const TextStyle(
+                    color: AppColors.negative, fontSize: 13)),
+          ],
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _save,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: const Text('Zapisz',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w600)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sheetField(TextEditingController controller) => TextField(
+        controller: controller,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        style: const TextStyle(color: AppColors.textPrimary),
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: AppColors.surfaceElevated,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      );
 }
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../api/portfolio_api.dart';
+import '../models/available_asset.dart';
 import '../models/holding.dart';
 import '../models/portfolio.dart';
 import '../models/pnl_period.dart';
@@ -19,14 +20,101 @@ final currenciesProvider = FutureProvider<List<String>>((ref) async {
   return fetchCurrencies();
 });
 
+// Aktywa rynkowe (cena z backendu) pogrupowane po kategorii — zasila picker
+// w kreatorze dodawania aktywa.
+final marketAssetsProvider =
+    FutureProvider<Map<String, List<AvailableAsset>>>((ref) async {
+  return fetchMarketAssets();
+});
+
 // --- Dane z API ---
 
 // Portfel zawsze w walucie preferowanej — źródło baseline'u "ostatniej wizyty"
 // oraz bazowych value_usd. Trzymany osobno, żeby podgląd w innej walucie nie
 // zatruł zapisywanego baseline'u.
 final livePreferredPortfolioProvider = FutureProvider<Portfolio>((ref) async {
-  return fetchPortfolio();
+  final base = await fetchPortfolio();
+  // Aktywa dodane lokalnie (kreator) + lokalne edycje ilości/wartości — zanim
+  // backend ma endpointy. Patrz [localHoldingsProvider], [holdingOverridesProvider].
+  final local = ref.watch(localHoldingsProvider);
+  final overrides = ref.watch(holdingOverridesProvider);
+  if (local.isEmpty && overrides.isEmpty) return base;
+
+  var holdings = [...base.holdings, ...local];
+  if (overrides.isNotEmpty) {
+    holdings = holdings.map((h) {
+      final e = overrides[h.assetId];
+      return e == null
+          ? h
+          : applyHoldingEdit(h, amount: e.amount, unitValueCcy: e.unitValueCcy);
+    }).toList();
+  }
+  return Portfolio(currency: base.currency, holdings: holdings);
 });
+
+// --- Lokalnie dodane holdingi (TYMCZASOWE) ---
+//
+// TODO(backend): gdy POST /holdings będzie gotowy, ten provider znika — aktywa
+// wrócą prosto z /portfolio. Na teraz trzymamy je w pamięci sesji, żeby kreator
+// dawał natychmiastowy efekt „aktywo wlatuje do portfela". Holdingi są w walucie
+// preferowanej; podgląd w innej walucie ich (na razie) nie pokazuje.
+final localHoldingsProvider =
+    NotifierProvider<LocalHoldingsNotifier, List<Holding>>(
+        LocalHoldingsNotifier.new);
+
+class LocalHoldingsNotifier extends Notifier<List<Holding>> {
+  @override
+  List<Holding> build() => const [];
+
+  void add(Holding holding) => state = [...state, holding];
+}
+
+// --- Lokalne edycje ilości / wartości (TYMCZASOWE) ---
+//
+// Override'y po assetId nakładane na portfel w [livePreferredPortfolioProvider].
+// Pozwalają edytować ilość/wartość KAŻDEGO aktywa (też seedowanego z backendu),
+// zanim powstanie PATCH /holdings. unitValueCcy == null → zmieniamy tylko ilość
+// (cena rynkowa zostaje), wartość skaluje się proporcjonalnie.
+typedef HoldingEdit = ({double amount, double? unitValueCcy});
+
+final holdingOverridesProvider =
+    NotifierProvider<HoldingOverridesNotifier, Map<String, HoldingEdit>>(
+        HoldingOverridesNotifier.new);
+
+class HoldingOverridesNotifier extends Notifier<Map<String, HoldingEdit>> {
+  @override
+  Map<String, HoldingEdit> build() => const {};
+
+  void set(String assetId, {required double amount, double? unitValueCcy}) {
+    state = {
+      ...state,
+      assetId: (amount: amount, unitValueCcy: unitValueCcy),
+    };
+  }
+}
+
+/// Nakłada edycję ilości/wartości na holding. value_usd skaluje się
+/// proporcjonalnie do zmiany value_ccy (ten sam kurs).
+Holding applyHoldingEdit(Holding h, {double? amount, double? unitValueCcy}) {
+  final newAmount = amount ?? h.amount;
+  final oldUnit = h.amount == 0 ? h.valueCcy : h.valueCcy / h.amount;
+  final newUnit = unitValueCcy ?? oldUnit;
+  final newValueCcy = newAmount * newUnit;
+  final ratio = h.valueCcy == 0 ? 1 : newValueCcy / h.valueCcy;
+  final newValueUsd = h.valueUsd * ratio;
+  return Holding(
+    assetId: h.assetId,
+    category: h.category,
+    amount: newAmount,
+    priceUsd: newAmount == 0 ? h.priceUsd : newValueUsd / newAmount,
+    valueUsd: newValueUsd,
+    valueCcy: newValueCcy,
+    priceSource: h.priceSource,
+    name: h.name,
+    displayCategory: h.displayCategory,
+    interestRate: h.interestRate,
+  );
+}
 
 // Portfel do wyświetlenia: preferowany albo przeliczony na wybraną walutę.
 final portfolioProvider = FutureProvider<Portfolio>((ref) async {

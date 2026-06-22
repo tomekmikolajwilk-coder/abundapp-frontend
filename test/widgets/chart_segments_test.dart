@@ -52,6 +52,33 @@ void main() {
     });
   });
 
+  group('buildChartSegments — display_category (ETF→obligacje)', () {
+    final etfBond = Holding(
+      assetId: 'OBLI',
+      category: 'etf',
+      amount: 1,
+      priceUsd: 1,
+      valueUsd: 40,
+      valueCcy: 40,
+      displayCategory: 'bonds',
+    );
+
+    test('ALL: ETF z display_category liczy się w docelowej kategorii', () {
+      final segs = buildChartSegments(
+          [...holdings, etfBond], const DashboardContext.all());
+      final ids = segs.map((s) => s.id).toList();
+      expect(ids, contains('bonds'));
+      expect(ids, isNot(contains('etf')));
+      expect(segs.firstWhere((s) => s.id == 'bonds').value, 40);
+    });
+
+    test('CATEGORY=bonds zawiera ETF mimo category=etf', () {
+      final segs = buildChartSegments(
+          [...holdings, etfBond], const DashboardContext.category('bonds'));
+      expect(segs.map((s) => s.id).toList(), ['OBLI']);
+    });
+  });
+
   group('buildChartSegments — poziom ASSET', () {
     test('zwraca pustą listę (brak alokacji do pokazania)', () {
       final segs = buildChartSegments(

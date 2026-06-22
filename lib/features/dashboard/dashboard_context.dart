@@ -35,5 +35,10 @@ String categoryLabel(String id) => switch (id) {
       'etf' => 'ETF-y',
       'metal' => 'Metale',
       'currency' => 'Gotówka',
+      'real_estate' => 'Nieruchomości',
+      'valuables' => 'Kosztowności',
+      'bonds' => 'Obligacje',
+      'deposits' => 'Lokaty',
+      'other' => 'Inne',
       _ => id,
     };

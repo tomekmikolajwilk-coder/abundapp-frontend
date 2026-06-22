@@ -14,10 +14,15 @@ class PnlHeader extends ConsumerWidget {
   /// i pokazuje dane dla tej kategorii/assetu zamiast dla całego kontekstu.
   final String? selectedSegmentId;
 
+  /// Czy pokazać sekcję wartości (etykieta + kwota) pod PnL. Na ekranie aktywa
+  /// jest false — wartość i ilość pokazuje osobny kafelek z przyciskiem edycji.
+  final bool showValueBlock;
+
   const PnlHeader({
     super.key,
     required this.context,
     this.selectedSegmentId,
+    this.showValueBlock = true,
   });
 
   @override
@@ -69,14 +74,15 @@ class PnlHeader extends ConsumerWidget {
             const SizedBox(height: 8),
             const PeriodSelector(),
 
-            const SizedBox(height: 16),
-
-            Text(valueLabel, style: Theme.of(ctx).textTheme.bodyMedium),
-            const SizedBox(height: 4),
-            Text(
-              moneyCcy(currentValue, portfolio.currency),
-              style: Theme.of(ctx).textTheme.displayMedium,
-            ),
+            if (showValueBlock) ...[
+              const SizedBox(height: 16),
+              Text(valueLabel, style: Theme.of(ctx).textTheme.bodyMedium),
+              const SizedBox(height: 4),
+              Text(
+                moneyCcy(currentValue, portfolio.currency),
+                style: Theme.of(ctx).textTheme.displayMedium,
+              ),
+            ],
           ],
         );
       },

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/models/holding.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
@@ -8,6 +9,7 @@ import '../../features/dashboard/dashboard_context.dart';
 import 'asset_avatar.dart';
 import 'chart_reveal.dart';
 import 'chart_segments.dart';
+import 'redirect_rows.dart';
 
 class DonutChart extends ConsumerWidget {
   final DashboardContext dashContext;
@@ -34,6 +36,9 @@ class DonutChart extends ConsumerWidget {
 
         final total = segments.fold(0.0, (sum, s) => sum + s.value);
         final selected = selectedIndex != null ? segments[selectedIndex!] : null;
+        final redirected = dashContext.level == DashboardLevel.category
+            ? redirectedHoldings(portfolio.holdings, dashContext.categoryId!)
+            : const <Holding>[];
 
         return ChartReveal(
           child: Column(
@@ -120,6 +125,12 @@ class DonutChart extends ConsumerWidget {
                 onTap: () => onSegmentTap(i, s.id),
               );
             }),
+            // Aktywa przeniesione stąd do innej kategorii — wyszarzone, pod linią.
+            if (redirected.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              const RedirectDivider(),
+              ...redirected.map((h) => RedirectRow(holding: h, avatarSize: 28)),
+            ],
           ],
         ),
         );
