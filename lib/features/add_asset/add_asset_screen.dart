@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/api/portfolio_api.dart';
 import '../../core/models/available_asset.dart';
-import '../../core/models/holding.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/asset_avatar.dart';
@@ -62,6 +62,10 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
   final _valueCtrl = TextEditingController();
   final _rateCtrl = TextEditingController();
 
+  // Waluta, w której user wpisuje wartość manualnego aktywa (null = preferowana).
+  String? _valueCurrency;
+
+  bool _submitting = false;
   String? _error;
 
   @override
@@ -81,6 +85,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
       _category = c;
       _asset = null;
       _displayCategory = null;
+      _valueCurrency = null;
       _error = null;
       _amountCtrl.clear();
       _nameCtrl.clear();
@@ -194,7 +199,10 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
             ],
           ),
         ),
-        _SubmitBar(onPressed: () => _submit(cat)),
+        _SubmitBar(
+          loading: _submitting,
+          onPressed: _submitting ? null : () => _submit(cat),
+        ),
       ],
     );
   }
@@ -241,9 +249,22 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
       const SizedBox(height: 8),
       _NumberField(controller: _amountCtrl, hint: 'np. 1'),
       const SizedBox(height: 20),
-      _FieldLabel('Wartość jednostki ($_preferred)'),
+      Row(
+        children: [
+          const _FieldLabel('Wartość jednostki'),
+          const Spacer(),
+          _CurrencySelector(
+            options: currencyValueOptions(_preferred),
+            selected: _valueCurrency ?? _preferred,
+            onChanged: (c) => setState(() => _valueCurrency = c),
+          ),
+        ],
+      ),
       const SizedBox(height: 8),
-      _NumberField(controller: _valueCtrl, hint: ''),
+      _NumberField(
+          controller: _valueCtrl,
+          hint: '',
+          suffixText: _valueCurrency ?? _preferred),
       if (cat.id == 'bonds') ...[
         const SizedBox(height: 20),
         const _RateLabelWithInfo(),
@@ -299,12 +320,10 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
 
   // --- Zatwierdzenie ---
 
-  void _submit(_CategoryOption cat) {
-    final marketAssets =
-        ref.read(marketAssetsProvider).valueOrNull ?? const {};
-    final preferredUsd = preferredUsdPrice(marketAssets, _preferred);
-
-    final Holding holding;
+  Future<void> _submit(_CategoryOption cat) async {
+    // Składamy body wg kontraktu; wartość manualną wysyłamy SUROWĄ + walutę,
+    // przeliczenie robi backend (trzyma unit_value natywnie w currency).
+    final Map<String, dynamic> body;
     if (cat.manual) {
       final name = _nameCtrl.text.trim();
       final amount = parseAmount(_amountCtrl.text);
@@ -317,56 +336,64 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
         rate = parseAmount(_rateCtrl.text);
         if (rate == null || rate < 0) return _fail('Niepoprawne oprocentowanie.');
       }
-      holding = buildManualHolding(
-        name: name,
-        category: cat.id,
-        amount: amount,
-        unitValueCcy: value,
-        preferredUsd: preferredUsd,
-        interestRate: rate,
-        // „Inne" może być routowane do innej kategorii (furtka na nieobsługiwane).
-        displayCategory: cat.id == 'other' ? _displayCategory : null,
-      );
+      body = {
+        'category': cat.id,
+        'amount': amount,
+        'custom': {
+          'name': name,
+          'unit_value': value,
+          'currency': _valueCurrency ?? _preferred,
+          if (cat.id == 'other' && _displayCategory != null)
+            'display_category': _displayCategory,
+          'interest_rate': ?rate,
+        },
+      };
     } else {
       final asset = _asset;
       final amount = parseAmount(_amountCtrl.text);
       if (asset == null) return _fail('Wybierz aktywo.');
       if (amount == null || amount <= 0) return _fail('Podaj poprawną ilość.');
-      final market = buildMarketHolding(
-        assetId: asset.assetId,
-        category: cat.id,
-        amount: amount,
-        priceUsd: asset.priceUsd,
-        preferredUsd: preferredUsd,
-      );
-      // display_category dla ETF — doklejamy po zbudowaniu (builder market jej
-      // nie przyjmuje, bo dotyczy tylko ETF-ów).
-      holding = _displayCategory == null
-          ? market
-          : Holding(
-              assetId: market.assetId,
-              category: market.category,
-              amount: market.amount,
-              priceUsd: market.priceUsd,
-              valueUsd: market.valueUsd,
-              valueCcy: market.valueCcy,
-              displayCategory: _displayCategory,
-            );
+      body = {
+        'category': cat.id,
+        'asset_id': asset.assetId,
+        'amount': amount,
+        // display_category dla market podajemy poza obiektem custom.
+        if (cat.id == 'etf' && _displayCategory != null)
+          'display_category': _displayCategory,
+      };
     }
 
-    ref.read(localHoldingsProvider.notifier).add(holding);
-
-    // Lądujemy od razu na ekranie nowo dodanego aktywa (zamiast wracać na
-    // poprzedni). Kategoria = ta, pod którą aktywo jest grupowane.
-    if (!mounted) return;
-    final navigator = Navigator.of(context);
-    navigator.pop();
-    navigator.push(MaterialPageRoute(
-      builder: (_) => DashboardScreen(
-        context: DashboardContext.asset(holding.groupCategory, holding.assetId),
-      ),
-    ));
+    setState(() {
+      _submitting = true;
+      _error = null;
+    });
+    try {
+      final created = await addHolding(body);
+      refreshPortfolio(ref);
+      if (!mounted) return;
+      // Lądujemy na ekranie nowo dodanego aktywa. Klucz: asset_id (market) lub
+      // id wiersza (manual). Kategoria = ta, pod którą aktywo jest grupowane.
+      final assetKey =
+          (created['asset_id'] ?? created['id'])?.toString() ?? '';
+      final groupCat =
+          (created['display_category'] ?? created['category'])?.toString() ??
+              cat.id;
+      final navigator = Navigator.of(context);
+      navigator.pop();
+      navigator.push(MaterialPageRoute(
+        builder: (_) => DashboardScreen(
+          context: DashboardContext.asset(groupCat, assetKey),
+        ),
+      ));
+    } catch (e) {
+      if (mounted) setState(() => _error = _cleanError(e));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
+
+  String _cleanError(Object e) =>
+      e.toString().replaceFirst('Exception: ', '');
 
   void _fail(String msg) => setState(() => _error = msg);
 }
@@ -416,6 +443,61 @@ class _RateLabelWithInfo extends StatelessWidget {
             child: const Text('OK', style: TextStyle(color: AppColors.accent)),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Kompaktowy dropdown waluty wartości (lista wspieranych walut).
+class _CurrencySelector extends StatelessWidget {
+  final List<String> options;
+  final String selected;
+  final ValueChanged<String> onChanged;
+  const _CurrencySelector({
+    required this.options,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (options.length <= 1) return const SizedBox.shrink();
+    return PopupMenuButton<String>(
+      initialValue: selected,
+      onSelected: onChanged,
+      color: AppColors.surfaceElevated,
+      position: PopupMenuPosition.under,
+      itemBuilder: (_) => options
+          .map((c) => PopupMenuItem(
+                value: c,
+                child: Text(c,
+                    style: TextStyle(
+                        color: c == selected
+                            ? AppColors.accent
+                            : AppColors.textPrimary,
+                        fontWeight:
+                            c == selected ? FontWeight.w700 : FontWeight.normal)),
+              ))
+          .toList(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(selected,
+                style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600)),
+            const SizedBox(width: 2),
+            const Icon(Icons.arrow_drop_down,
+                color: AppColors.textSecondary, size: 18),
+          ],
+        ),
       ),
     );
   }
@@ -475,7 +557,8 @@ class _TextField extends StatelessWidget {
 class _NumberField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
-  const _NumberField({required this.controller, required this.hint});
+  final String? suffixText;
+  const _NumberField({required this.controller, required this.hint, this.suffixText});
   @override
   Widget build(BuildContext context) => TextField(
         controller: controller,
@@ -484,7 +567,11 @@ class _NumberField extends StatelessWidget {
           FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
         ],
         style: const TextStyle(color: AppColors.textPrimary),
-        decoration: _inputDecoration(hint),
+        decoration: _inputDecoration(hint).copyWith(
+          suffixText: suffixText,
+          suffixStyle: const TextStyle(
+              color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+        ),
       );
 }
 
@@ -579,8 +666,9 @@ class _DisplayCategoryPicker extends StatelessWidget {
 }
 
 class _SubmitBar extends StatelessWidget {
-  final VoidCallback onPressed;
-  const _SubmitBar({required this.onPressed});
+  final VoidCallback? onPressed;
+  final bool loading;
+  const _SubmitBar({required this.onPressed, this.loading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -593,16 +681,24 @@ class _SubmitBar extends StatelessWidget {
           onPressed: onPressed,
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.accent,
+            disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.5),
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
           ),
-          child: const Text('Dodaj',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600)),
+          child: loading
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.white),
+                )
+              : const Text('Dodaj',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600)),
         ),
       ),
     );

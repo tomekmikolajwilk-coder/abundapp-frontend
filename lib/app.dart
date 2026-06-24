@@ -34,8 +34,6 @@ class _AuthGate extends ConsumerWidget {
     ref.listen(sessionProvider, (prev, next) {
       if (prev?.user.id != next?.user.id) {
         ref.invalidate(livePreferredPortfolioProvider);
-        ref.invalidate(localHoldingsProvider);
-        ref.invalidate(holdingOverridesProvider);
         ref.invalidate(portfolioProvider);
         ref.invalidate(snapshotDatesProvider);
         ref.invalidate(currenciesProvider);

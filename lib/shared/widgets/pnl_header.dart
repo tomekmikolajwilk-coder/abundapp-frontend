@@ -50,7 +50,7 @@ class PnlHeader extends ConsumerWidget {
         final base = currentValue - effectivePnl;
         final pnlPercent = base != 0 ? (effectivePnl / base) * 100 : 0.0;
 
-        final valueLabel = _valueLabel();
+        final valueLabel = _valueLabel(portfolio);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,19 +111,30 @@ class PnlHeader extends ConsumerWidget {
     };
   }
 
-  String _valueLabel() {
+  String _valueLabel(Portfolio p) {
     if (selectedSegmentId != null) {
       return switch (context.level) {
-        DashboardLevel.all => 'Wartość kategorii $selectedSegmentId',
-        DashboardLevel.category => 'Twoje $selectedSegmentId w portfelu',
+        DashboardLevel.all =>
+          'Wartość kategorii ${categoryLabel(selectedSegmentId!)}',
+        DashboardLevel.category =>
+          'Twoje ${_assetName(p, selectedSegmentId!)} w portfelu',
         DashboardLevel.asset => 'Wartość portfela',
       };
     }
     return switch (context.level) {
       DashboardLevel.all => 'Wartość portfela',
       DashboardLevel.category => 'Wartość ${context.title}',
-      DashboardLevel.asset => 'Twoje ${context.assetId} w portfelu',
+      DashboardLevel.asset =>
+        'Twoje ${_assetName(p, context.assetId!)} w portfelu',
     };
+  }
+
+  /// Czytelna nazwa aktywa po assetId — dla manuali to nazwa, nie UUID.
+  String _assetName(Portfolio p, String assetId) {
+    for (final h in p.holdings) {
+      if (h.assetId == assetId) return h.displayName;
+    }
+    return assetId;
   }
 }
 

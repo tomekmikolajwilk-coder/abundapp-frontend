@@ -9,6 +9,12 @@ class PriceSource {
 }
 
 class Holding {
+  /// Id wiersza w portfelu (z backendu) — do PATCH/DELETE. null dla pozycji
+  /// lokalnych/snapshotów bez tego pola.
+  final String? id;
+
+  /// Ticker (market) albo — gdy backend nie zwraca asset_id (manual) — id wiersza.
+  /// Zawsze niepuste, służy jako klucz tożsamości w UI (drill-down, wykresy).
   final String assetId;
   final String category;
   final double amount;
@@ -32,6 +38,12 @@ class Holding {
   /// Naliczaniem zajmuje się backend; frontend tylko przechowuje pole.
   final double? interestRate;
 
+  /// Natywna wartość jednostki i jej waluta (z /portfolio) — w nich aktywo jest
+  /// trzymane na backendzie. Gdy obecne, edytor pozwala zmienić wartość w tej
+  /// walucie (niezależnie od podglądu). null = backend ich (jeszcze) nie zwraca.
+  final double? unitValueNative;
+  final String? unitCurrency;
+
   const Holding({
     required this.assetId,
     required this.category,
@@ -39,10 +51,13 @@ class Holding {
     required this.priceUsd,
     required this.valueUsd,
     required this.valueCcy,
+    this.id,
     this.priceSource = PriceSource.market,
     this.name,
     this.displayCategory,
     this.interestRate,
+    this.unitValueNative,
+    this.unitCurrency,
   });
 
   /// Aktywo z ręcznie podaną wartością (user updatuje sam, np. nieruchomość).
@@ -56,7 +71,9 @@ class Holding {
 
   factory Holding.fromJson(Map<String, dynamic> json) {
     return Holding(
-      assetId: json['asset_id'] as String,
+      id: json['id'] as String?,
+      // Manual nie ma asset_id — używamy id wiersza jako klucza tożsamości.
+      assetId: (json['asset_id'] ?? json['id']) as String? ?? '',
       category: json['category'] as String,
       amount: (json['amount'] as num).toDouble(),
       priceUsd: (json['price_usd'] as num).toDouble(),
@@ -66,10 +83,13 @@ class Holding {
       name: json['name'] as String?,
       displayCategory: json['display_category'] as String?,
       interestRate: (json['interest_rate'] as num?)?.toDouble(),
+      unitValueNative: (json['unit_value'] as num?)?.toDouble(),
+      unitCurrency: json['unit_currency'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
         'asset_id': assetId,
         'category': category,
         'amount': amount,

@@ -94,26 +94,39 @@ Future<Map<String, List<AvailableAsset>>> fetchMarketAssets() async {
   return result;
 }
 
-/// Dodaje aktywo do portfela. Dla market wysyłamy `asset_id` + `amount`; dla
-/// manual dochodzi obiekt `custom` (nazwa, wartość jednostki, waluta, ew.
-/// display_category i interest_rate). Endpoint POST /holdings powstaje w sesji
-/// backendowej — kontrakt opisany w docs/backend-holdings.md.
-Future<void> addHolding(Map<String, dynamic> body) async {
+/// Wyciąga czytelny komunikat błędu z odpowiedzi (body JSON `{error|message}`
+/// albo surowy tekst), z fallbackiem na kod HTTP.
+String _apiError(http.Response r) {
+  try {
+    final json = jsonDecode(r.body);
+    if (json is Map && (json['error'] ?? json['message']) != null) {
+      return (json['error'] ?? json['message']).toString();
+    }
+  } catch (_) {}
+  return r.body.isNotEmpty ? r.body : 'Błąd ${r.statusCode}';
+}
+
+/// Dodaje aktywo do portfela i zwraca utworzony wiersz (zawiera `id`).
+/// Market: `{ category, asset_id, amount, display_category? }`.
+/// Manual:  `{ category, amount, custom: { name, unit_value, currency, ... } }`.
+Future<Map<String, dynamic>> addHolding(Map<String, dynamic> body) async {
   final uri = Uri.parse('$_baseUrl/holdings');
   final response =
       await http.post(uri, headers: _headers, body: jsonEncode(body));
-  if (response.statusCode >= 200 && response.statusCode < 300) return;
-  throw Exception('Failed to add holding: ${response.statusCode}');
+  if (response.statusCode >= 200 && response.statusCode < 300) {
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
+  throw Exception(_apiError(response));
 }
 
-/// Aktualizuje ilość i/lub wartość jednostki istniejącego holdingu (np. user
-/// zmienia wycenę mieszkania). PATCH /holdings/:id.
+/// Aktualizuje ilość i/lub wartość jednostki holdingu. PATCH /holdings/:id.
+/// `unit_value` tylko dla pozycji manual (na market backend zwróci 400).
 Future<void> updateHolding(String id, Map<String, dynamic> body) async {
   final uri = Uri.parse('$_baseUrl/holdings/$id');
   final response =
       await http.patch(uri, headers: _headers, body: jsonEncode(body));
   if (response.statusCode >= 200 && response.statusCode < 300) return;
-  throw Exception('Failed to update holding: ${response.statusCode}');
+  throw Exception(_apiError(response));
 }
 
 /// Usuwa holding z portfela. DELETE /holdings/:id.
@@ -121,7 +134,7 @@ Future<void> deleteHolding(String id) async {
   final uri = Uri.parse('$_baseUrl/holdings/$id');
   final response = await http.delete(uri, headers: _headers);
   if (response.statusCode >= 200 && response.statusCode < 300) return;
-  throw Exception('Failed to delete holding: ${response.statusCode}');
+  throw Exception(_apiError(response));
 }
 
 /// Lista dostępnych walut (kategoria `currency` z /assets) — do pickera.
@@ -134,8 +147,11 @@ Future<List<String>> fetchCurrencies() async {
   final list = (json['currency'] as List<dynamic>? ?? [])
       .cast<Map<String, dynamic>>()
       .map((c) => c['asset_id'] as String)
-      .toList()
-    ..sort();
+      .toList();
+  // USD jest walutą bazową — nie ma go w katalogu `currency`, ale backend
+  // wspiera podgląd w USD, więc dokładamy go ręcznie.
+  if (!list.contains('USD')) list.add('USD');
+  list.sort();
   return list;
 }
 
