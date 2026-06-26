@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../api/portfolio_api.dart';
 import '../models/available_asset.dart';
 import '../models/holding.dart';
+import '../models/transaction.dart';
 import '../models/portfolio.dart';
 import '../models/pnl_period.dart';
 import 'preferences_provider.dart';
@@ -40,7 +41,14 @@ final livePreferredPortfolioProvider = FutureProvider<Portfolio>((ref) async {
 void refreshPortfolio(WidgetRef ref) {
   ref.invalidate(livePreferredPortfolioProvider);
   ref.invalidate(portfolioProvider);
+  ref.invalidate(transactionsProvider);
 }
+
+// Ledger transakcji w walucie wyświetlania (preferowana albo wybrana).
+final transactionsProvider = FutureProvider<List<Transaction>>((ref) async {
+  final sel = ref.watch(selectedCurrencyProvider);
+  return fetchTransactions(currency: sel);
+});
 
 // Portfel do wyświetlenia: preferowany albo przeliczony na wybraną walutę.
 final portfolioProvider = FutureProvider<Portfolio>((ref) async {
@@ -95,6 +103,12 @@ class VisitBaselineNotifier extends Notifier<Portfolio?> {
 
   bool _recordedThisSession = false;
 
+  /// Kiedy zamrożony baseline został zapisany (poprzednia sesja) — okno do
+  /// liczenia rozbicia PnL „od ostatniej wizyty" to [capturedAt, teraz].
+  /// Zamrożone w build(), zanim recordVisit nadpisze znacznik dla następnej sesji.
+  DateTime? _capturedAt;
+  DateTime? get capturedAt => _capturedAt;
+
   // Klucz baseline'u jest per-user — inaczej baseline jednego usera wyciekłby do
   // drugiego po przelogowaniu (PnL liczony względem cudzego portfela). Gdy nie ma
   // sesji (np. w testach bez Supabase.initialize), spadamy do bazowego klucza.
@@ -102,6 +116,8 @@ class VisitBaselineNotifier extends Notifier<Portfolio?> {
     final uid = _safeUid();
     return uid == null ? _kJsonBase : '${_kJsonBase}_$uid';
   }
+
+  String get _tsKey => '${_key}_ts';
 
   // Supabase.instance rzuca, jeśli SDK nie zostało zainicjowane (testy) — łapiemy
   // i zwracamy null, żeby baseline działał na bazowym kluczu.
@@ -117,6 +133,8 @@ class VisitBaselineNotifier extends Notifier<Portfolio?> {
   Portfolio? build() {
     // Baseline z poprzedniej sesji — zamrażamy na bieżącą sesję.
     final prefs = ref.read(sharedPreferencesProvider);
+    final ts = prefs.getString(_tsKey);
+    _capturedAt = ts == null ? null : DateTime.tryParse(ts);
     final json = prefs.getString(_key);
     if (json == null) return null;
     try {
@@ -135,8 +153,18 @@ class VisitBaselineNotifier extends Notifier<Portfolio?> {
     ref
         .read(sharedPreferencesProvider)
         .setString(_key, jsonEncode(current.toJson()));
+    ref
+        .read(sharedPreferencesProvider)
+        .setString(_tsKey, DateTime.now().toUtc().toIso8601String());
   }
 }
+
+/// Znacznik czasu zamrożonego baseline'u „od ostatniej wizyty" — okno do
+/// rozbicia PnL na transakcje vs ruch ceny. Odświeża się razem z baseline'em.
+final visitBaselineCapturedAtProvider = Provider<DateTime?>((ref) {
+  ref.watch(visitBaselineProvider);
+  return ref.read(visitBaselineProvider.notifier).capturedAt;
+});
 
 final snapshotDatesProvider = FutureProvider<List<String>>((ref) async {
   return fetchSnapshotDates();
@@ -156,7 +184,7 @@ final availablePeriodsProvider = Provider<List<PnlPeriod>>((ref) {
 
   return PnlPeriod.values.where((period) {
     if (period == PnlPeriod.lastVisit) return true; // zawsze dostępny
-    if (period == PnlPeriod.allTime) return dates.isNotEmpty;
+    if (period == PnlPeriod.allTime) return true; // od zera, nie wymaga snapshotu
 
     final needed = period.snapshotDate(now);
     if (needed == null) return false;
@@ -185,9 +213,10 @@ final periodSnapshotProvider = FutureProvider<Portfolio?>((ref) async {
   }
 
   if (period == PnlPeriod.allTime) {
-    final dates = await ref.watch(snapshotDatesProvider.future);
-    if (dates.isEmpty) return null;
-    return fetchPortfolioSnapshot(dates.last, currency: sel); // najstarsza data
+    // „Od początku" = od zera (przed jakimkolwiek posiadaniem). Baseline pusty,
+    // więc PnL = cała obecna wartość; rozbicie pokaże ile z transakcji, ile z ceny.
+    final cur = ref.watch(portfolioProvider).valueOrNull;
+    return Portfolio(currency: cur?.currency ?? sel ?? 'PLN', holdings: const []);
   }
 
   final date = period.snapshotDate(now);
@@ -202,8 +231,27 @@ final pnlProvider = Provider<double?>((ref) {
   final snapshot = ref.watch(periodSnapshotProvider).valueOrNull;
 
   if (current == null) return null;
-  // Brak snapshotu (pierwsze uruchomienie) LUB snapshot bez pozycji (pusty/błędny
-  // last-visit) → PnL 0. Inaczej pusty snapshot dałby PnL = cała wartość portfela.
-  if (snapshot == null || snapshot.holdings.isEmpty) return 0;
+  // Brak baseline'u (null = nigdy nie zapisany, pierwsza sesja) → PnL 0.
+  // Pusty, ale ISTNIEJĄCY baseline (np. nowe konto: poprzednia wizyta = pusty
+  // portfel) jest legalny → PnL = wartość obecna − 0.
+  if (snapshot == null) return 0;
   return current.totalValueCcy - snapshot.totalValueCcy;
+});
+
+// --- Okno czasowe wybranego okresu — do rozbicia PnL na transakcje vs ruch ceny ---
+//
+// Transakcje z [windowStart, teraz] sumujemy jako składową „transakcje"; reszta
+// PnL to ruch ceny. null = nie da się policzyć okna (brak baseline'u/snapshotu).
+final pnlWindowStartProvider = Provider<DateTime?>((ref) {
+  final period = ref.watch(selectedPeriodProvider);
+  if (period == PnlPeriod.lastVisit) {
+    return ref.watch(visitBaselineCapturedAtProvider);
+  }
+  // „Od początku" = od zera: okno obejmuje WSZYSTKIE transakcje.
+  if (period == PnlPeriod.allTime) return DateTime.utc(1970);
+
+  // Snapshoty cronowe są o 7:00 UTC — okno zaczynamy o tej godzinie, żeby
+  // transakcje liczyć dokładnie od momentu, który odzwierciedla snapshot.
+  final date = period.snapshotDate(DateTime.now());
+  return date == null ? null : DateTime.tryParse('${date}T07:00:00Z');
 });

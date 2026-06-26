@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:abundapp/core/models/holding.dart';
+import 'package:abundapp/core/models/pnl_period.dart';
 import 'package:abundapp/core/models/portfolio.dart';
 import 'package:abundapp/core/providers/portfolio_provider.dart';
 import 'package:abundapp/core/providers/top_movers_provider.dart';
@@ -64,8 +65,10 @@ void main() {
       expect(c.read(pnlProvider), 0);
     });
 
-    test('snapshot bez pozycji (pusty last-visit) → 0, nie cała wartość',
+    test('pusty, ale ISTNIEJĄCY baseline (nowe konto) → PnL = cała wartość',
         () async {
+      // Poprzednia wizyta = pusty portfel (value 0); dziś 1 BTC = 500.
+      // PnL = 500 − 0 (nie 0 — baseline istnieje, tylko był pusty).
       final c = ProviderContainer(overrides: [
         portfolioProvider.overrideWith(
             (ref) async => _portfolio('PLN', [_h('BTC', 'crypto', 100, 500)])),
@@ -74,7 +77,21 @@ void main() {
       addTearDown(c.dispose);
       await c.read(portfolioProvider.future);
       await c.read(periodSnapshotProvider.future);
-      expect(c.read(pnlProvider), 0);
+      expect(c.read(pnlProvider), 500);
+    });
+
+    test('okres „od początku" → baseline od zera → PnL = cała wartość',
+        () async {
+      // all-time nie pobiera snapshotu — baseline pusty, PnL = obecna wartość.
+      final c = ProviderContainer(overrides: [
+        portfolioProvider.overrideWith(
+            (ref) async => _portfolio('PLN', [_h('BTC', 'crypto', 100, 1100)])),
+        selectedPeriodProvider.overrideWith((ref) => PnlPeriod.allTime),
+      ]);
+      addTearDown(c.dispose);
+      await c.read(portfolioProvider.future);
+      await c.read(periodSnapshotProvider.future);
+      expect(c.read(pnlProvider), 1100);
     });
 
     test('current - snapshot (po totalValueCcy)', () async {

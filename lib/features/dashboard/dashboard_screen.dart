@@ -9,6 +9,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
 import '../add_asset/add_asset_screen.dart';
 import '../add_asset/asset_builder.dart';
+import '../transactions/transactions_screen.dart';
 import '../../shared/widgets/allocation_chart.dart';
 import '../../shared/widgets/asset_avatar.dart';
 import '../../shared/widgets/donut_chart.dart';
@@ -121,6 +122,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ],
                 ),
                 actions: [
+                  IconButton(
+                    icon: const Icon(Icons.receipt_long_outlined,
+                        color: AppColors.textSecondary),
+                    tooltip: 'Transakcje',
+                    onPressed: () => Navigator.push(
+                      ctx,
+                      MaterialPageRoute(
+                          builder: (_) => const TransactionsScreen()),
+                    ),
+                  ),
                   const _CurrencyButton(),
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.settings_outlined,

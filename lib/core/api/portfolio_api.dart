@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 import '../models/available_asset.dart';
 import '../models/portfolio.dart';
+import '../models/transaction.dart';
 
 const _baseUrl = functionsBaseUrl;
 
@@ -135,6 +136,26 @@ Future<void> deleteHolding(String id) async {
   final response = await http.delete(uri, headers: _headers);
   if (response.statusCode >= 200 && response.statusCode < 300) return;
   throw Exception(_apiError(response));
+}
+
+/// Ledger transakcji (malejąco po dacie). `value_ccy` jest podpisana (buy +,
+/// sell −) i w walucie `currency` (domyślnie preferowanej). Suma za okres =
+/// przepływ netto; Ruch ceny = ΔWartość − Σ value_ccy.
+Future<List<Transaction>> fetchTransactions({String? currency}) async {
+  final params = {'currency': ?currency};
+  final uri =
+      Uri.parse('$_baseUrl/transactions').replace(queryParameters: params);
+  final response = await http.get(uri, headers: _headers);
+  if (response.statusCode != 200) return [];
+
+  final json = jsonDecode(response.body);
+  final list = json is List
+      ? json
+      : (json as Map<String, dynamic>)['transactions'] as List<dynamic>? ?? [];
+  return list
+      .cast<Map<String, dynamic>>()
+      .map(Transaction.fromJson)
+      .toList();
 }
 
 /// Lista dostępnych walut (kategoria `currency` z /assets) — do pickera.

@@ -4,6 +4,9 @@ import 'package:abundapp/core/utils/format.dart';
 // Separator tysięcy używany w format.dart to wąska spacja (U+202F).
 const nbsp = ' ';
 
+// Separator przed walutą to twarda spacja (U+00A0), szersza niż grupowanie.
+const ccysp = ' ';
+
 void main() {
   group('money', () {
     test('zaokrągla i grupuje tysiące', () {
@@ -35,36 +38,36 @@ void main() {
 
   group('moneyCcy', () {
     test('dokleja walutę po wąskiej spacji', () {
-      expect(moneyCcy(127513.93, 'PLN'), '127${nbsp}514${nbsp}PLN');
+      expect(moneyCcy(127513.93, 'PLN'), '127${nbsp}514${ccysp}PLN');
     });
   });
 
   group('moneySigned', () {
     test('dodatnie z plusem', () {
-      expect(moneySigned(1234, 'PLN'), '+1${nbsp}234${nbsp}PLN');
+      expect(moneySigned(1234, 'PLN'), '+1${nbsp}234${ccysp}PLN');
     });
 
     test('ujemne z minusem', () {
-      expect(moneySigned(-1234, 'PLN'), '-1${nbsp}234${nbsp}PLN');
+      expect(moneySigned(-1234, 'PLN'), '-1${nbsp}234${ccysp}PLN');
     });
 
     test('zero traktowane jako dodatnie', () {
-      expect(moneySigned(0, 'USD'), '+0${nbsp}USD');
+      expect(moneySigned(0, 'USD'), '+0${ccysp}USD');
     });
   });
 
   group('moneyPreciseCcy', () {
     test('grosze z przecinkiem dziesiętnym', () {
-      expect(moneyPreciseCcy(127513.93, 'PLN'), '127${nbsp}513,93${nbsp}PLN');
+      expect(moneyPreciseCcy(127513.93, 'PLN'), '127${nbsp}513,93${ccysp}PLN');
     });
 
     test('dopełnia grosze do dwóch cyfr', () {
-      expect(moneyPreciseCcy(1.5, 'USD'), '1,50${nbsp}USD');
-      expect(moneyPreciseCcy(2, 'USD'), '2,00${nbsp}USD');
+      expect(moneyPreciseCcy(1.5, 'USD'), '1,50${ccysp}USD');
+      expect(moneyPreciseCcy(2, 'USD'), '2,00${ccysp}USD');
     });
 
     test('liczby ujemne', () {
-      expect(moneyPreciseCcy(-5.05, 'EUR'), '-5,05${nbsp}EUR');
+      expect(moneyPreciseCcy(-5.05, 'EUR'), '-5,05${ccysp}EUR');
     });
   });
 

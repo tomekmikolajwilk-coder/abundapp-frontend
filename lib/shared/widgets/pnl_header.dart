@@ -5,6 +5,7 @@ import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
+import 'pnl_breakdown.dart';
 import 'period_selector.dart';
 
 class PnlHeader extends ConsumerWidget {
@@ -38,11 +39,10 @@ class PnlHeader extends ConsumerWidget {
         final snapshot = snapshotAsync.valueOrNull;
 
         final currentValue = _filteredValue(portfolio);
-        // Pusty/błędny snapshot (last-visit nic nie zwrócił) traktujemy jak brak
-        // baseline'u → PnL 0, zamiast pokazywać całą wartość portfela jako zysk.
-        final snapshotValue = (snapshot != null && snapshot.holdings.isNotEmpty)
-            ? _filteredValue(snapshot)
-            : null;
+        // Brak baseline'u (null) → PnL 0. Pusty, ale istniejący baseline (nowe
+        // konto: poprzednia wizyta = pusty portfel) jest legalny → liczymy normalnie.
+        final snapshotValue =
+            snapshot != null ? _filteredValue(snapshot) : null;
 
         final effectivePnl =
             snapshotValue != null ? currentValue - snapshotValue : 0.0;
@@ -73,6 +73,13 @@ class PnlHeader extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             const PeriodSelector(),
+
+            PnlBreakdown(
+              context: context,
+              selectedSegmentId: selectedSegmentId,
+              deltaValue: effectivePnl,
+              currency: portfolio.currency,
+            ),
 
             if (showValueBlock) ...[
               const SizedBox(height: 16),
