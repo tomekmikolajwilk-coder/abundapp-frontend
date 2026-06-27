@@ -107,5 +107,8 @@ class Holding {
         if (name != null) 'name': name,
         if (displayCategory != null) 'display_category': displayCategory,
         if (interestRate != null) 'interest_rate': interestRate,
+        // Bez tego baseline „ostatniej wizyty" (persystowany przez toJson) gubił udział
+        // odsetek → rozbicie PnL liczyło całe odsetki jako przyrost (Ruch ceny na minus).
+        'interest_ratio': interestRatio,
       };
 }

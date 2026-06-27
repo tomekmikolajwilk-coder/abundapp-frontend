@@ -78,6 +78,9 @@ Portfolio _toSelectedCurrency(Portfolio p, String currency, double rate) {
               priceUsd: h.priceUsd,
               valueUsd: h.valueUsd,
               valueCcy: h.valueUsd * rate,
+              // interestRatio jest walutowo-niezmienny — przenosimy, inaczej baseline
+              // w wybranej walucie gubił odsetki (Ruch ceny od ostatniej wizyty na minus).
+              interestRatio: h.interestRatio,
             ))
         .toList(),
   );
