@@ -250,8 +250,9 @@ final pnlWindowStartProvider = Provider<DateTime?>((ref) {
   // „Od początku" = od zera: okno obejmuje WSZYSTKIE transakcje.
   if (period == PnlPeriod.allTime) return DateTime.utc(1970);
 
-  // Snapshoty cronowe są o 7:00 UTC — okno zaczynamy o tej godzinie, żeby
-  // transakcje liczyć dokładnie od momentu, który odzwierciedla snapshot.
-  final date = period.snapshotDate(DateTime.now());
-  return date == null ? null : DateTime.tryParse('${date}T07:00:00Z');
+  // Okno = faktyczny `captured_at` baseline-snapshotu, nie sztywne 07:00. Inaczej
+  // transakcje sprzed uchwycenia snapshotu (ale po 07:00) podwajały się z wartością
+  // już odzwierciedloną w baseline → ujemny „ruch ceny" (bug 2c). null gdy snapshot
+  // jeszcze się ładuje → rozbicie chwilowo ukryte.
+  return ref.watch(periodSnapshotProvider).valueOrNull?.capturedAt;
 });
