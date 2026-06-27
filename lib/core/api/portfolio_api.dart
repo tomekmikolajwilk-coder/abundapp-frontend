@@ -95,6 +95,54 @@ Future<Map<String, List<AvailableAsset>>> fetchMarketAssets() async {
   return result;
 }
 
+/// Strona wyników `/assets/search` — lista + flaga `has_more` do paginacji.
+class AssetSearchPage {
+  final List<AvailableAsset> results;
+  final bool hasMore;
+  const AssetSearchPage({required this.results, required this.hasMore});
+}
+
+/// Search-as-you-type po katalogu aktywów (`/assets/search`, Faza 3). Używany
+/// dla dużych katalogów (stock/ETF), gdzie `/assets` nie zwraca całości — tylko
+/// to, co ma kurs w cache. Zwraca **metadane bez kursu** (held assety z ceną idą
+/// przez /portfolio). Backend wymaga `q` (≥2 znaki) lub `category`.
+Future<AssetSearchPage> searchAssets({
+  String? q,
+  String? category,
+  String? exchange,
+  int limit = 20,
+  int offset = 0,
+}) async {
+  final params = {
+    'q': ?q,
+    'category': ?category,
+    'exchange': ?exchange,
+    'limit': '$limit',
+    'offset': '$offset',
+  };
+  final uri =
+      Uri.parse('$_baseUrl/assets/search').replace(queryParameters: params);
+  final response = await http.get(uri, headers: _headers);
+  if (response.statusCode != 200) throw Exception(_apiError(response));
+
+  final json = jsonDecode(response.body) as Map<String, dynamic>;
+  final results = (json['results'] as List<dynamic>? ?? [])
+      .cast<Map<String, dynamic>>()
+      .map(AvailableAsset.fromJson)
+      .toList();
+  return AssetSearchPage(results: results, hasMore: json['has_more'] == true);
+}
+
+/// Błąd HTTP z naszego API — niesie kod statusu, żeby UI mogło rozróżnić
+/// przypadki (np. 503 = przejściowa czkawka źródła ceny vs 400 = trwały brak notowań).
+class ApiException implements Exception {
+  final int statusCode;
+  final String message;
+  ApiException(this.statusCode, this.message);
+  @override
+  String toString() => message;
+}
+
 /// Wyciąga czytelny komunikat błędu z odpowiedzi (body JSON `{error|message}`
 /// albo surowy tekst), z fallbackiem na kod HTTP.
 String _apiError(http.Response r) {
@@ -117,7 +165,7 @@ Future<Map<String, dynamic>> addHolding(Map<String, dynamic> body) async {
   if (response.statusCode >= 200 && response.statusCode < 300) {
     return jsonDecode(response.body) as Map<String, dynamic>;
   }
-  throw Exception(_apiError(response));
+  throw ApiException(response.statusCode, _apiError(response));
 }
 
 /// Aktualizuje ilość i/lub wartość jednostki holdingu. PATCH /holdings/:id.

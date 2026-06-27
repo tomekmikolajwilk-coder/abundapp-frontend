@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -299,6 +301,16 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
   // --- Picker aktywa (bottom sheet z wyszukiwarką) ---
 
   void _openAssetPicker(String category) {
+    void onSelected(AvailableAsset a) => setState(() {
+          _asset = a;
+          _error = null;
+        });
+    void onAddOther() =>
+        _pickCategory(const _CategoryOption('other', manual: true));
+
+    // Duże katalogi (stock/ETF) → search-as-you-type po /assets/search.
+    // Małe, w cache z ceną (crypto/currency/metal) → bulk z /assets jak dotąd.
+    final useSearch = category == 'stock' || category == 'etf';
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -306,15 +318,17 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => _AssetPickerSheet(
-        category: category,
-        onSelected: (a) => setState(() {
-          _asset = a;
-          _error = null;
-        }),
-        onAddOther: () =>
-            _pickCategory(const _CategoryOption('other', manual: true)),
-      ),
+      builder: (_) => useSearch
+          ? _AssetSearchSheet(
+              category: category,
+              onSelected: onSelected,
+              onAddOther: onAddOther,
+            )
+          : _AssetPickerSheet(
+              category: category,
+              onSelected: onSelected,
+              onAddOther: onAddOther,
+            ),
     );
   }
 
@@ -392,8 +406,21 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
     }
   }
 
-  String _cleanError(Object e) =>
-      e.toString().replaceFirst('Exception: ', '');
+  String _cleanError(Object e) {
+    // 503 = przejściowa czkawka źródła ceny (np. TD chwilowo nie odpowiedział).
+    // To NIE trwały brak — user może po prostu spróbować ponownie (przycisk „Dodaj").
+    if (e is ApiException && e.statusCode == 503) {
+      return 'Chwilowy problem z pobraniem kursu. Spróbuj ponownie za chwilę.';
+    }
+    final msg = e.toString().replaceFirst('Exception: ', '');
+    // Add-time guard (Faza 3): źródło ceny TRWALE nie ma notowań dla aktywa (400).
+    // Pokazujemy przyjazny komunikat z furtką „Inne".
+    if (msg.contains('Brak notowań')) {
+      return 'Nie umiemy teraz wycenić tego aktywa. Wybierz inne albo dodaj je '
+          'w kategorii „Inne" z ręcznie ustawioną wartością.';
+    }
+    return msg;
+  }
 
   void _fail(String msg) => setState(() => _error = msg);
 }
@@ -601,11 +628,25 @@ class _AssetPickerField extends StatelessWidget {
             if (selected != null) ...[
               AssetAvatar.asset(assetId: selected!.assetId, category: category, size: 28),
               const SizedBox(width: 12),
-              Text(selected!.assetId,
-                  style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600)),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(selected!.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600)),
+                    if (selected!.displayName != null)
+                      Text(selected!.assetId,
+                          style: const TextStyle(
+                              color: AppColors.textSecondary, fontSize: 12)),
+                  ],
+                ),
+              ),
             ] else
               const Text('Wybierz z listy',
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 15)),
@@ -770,7 +811,9 @@ class _AssetPickerSheetState extends ConsumerState<_AssetPickerSheet> {
                   final list = _query.isEmpty
                       ? all
                       : all
-                          .where((a) => a.assetId.contains(_query))
+                          .where((a) =>
+                              a.assetId.toUpperCase().contains(_query) ||
+                              a.label.toUpperCase().contains(_query))
                           .toList();
                   if (list.isEmpty) {
                     return const Center(
@@ -786,10 +829,15 @@ class _AssetPickerSheetState extends ConsumerState<_AssetPickerSheet> {
                       return ListTile(
                         leading: AssetAvatar.asset(
                             assetId: a.assetId, category: widget.category, size: 32),
-                        title: Text(a.assetId,
+                        title: Text(a.label,
                             style: const TextStyle(
                                 color: AppColors.textPrimary,
                                 fontWeight: FontWeight.w500)),
+                        subtitle: a.displayName != null
+                            ? Text(a.assetId,
+                                style: const TextStyle(
+                                    color: AppColors.textSecondary, fontSize: 12))
+                            : null,
                         onTap: () {
                           widget.onSelected(a);
                           Navigator.pop(context);
@@ -809,6 +857,231 @@ class _AssetPickerSheetState extends ConsumerState<_AssetPickerSheet> {
       },
     );
   }
+}
+
+/// Picker dla dużych katalogów (stock/ETF): search-as-you-type po
+/// `/assets/search` z debounce, paginacją (infinite scroll) i metadanymi
+/// (nazwa · ticker · giełda). Katalog ma tysiące pozycji i `/assets` nie zwraca
+/// go w całości, więc filtrujemy po stronie serwera.
+class _AssetSearchSheet extends StatefulWidget {
+  final String category;
+  final ValueChanged<AvailableAsset> onSelected;
+  final VoidCallback onAddOther;
+  const _AssetSearchSheet({
+    required this.category,
+    required this.onSelected,
+    required this.onAddOther,
+  });
+
+  @override
+  State<_AssetSearchSheet> createState() => _AssetSearchSheetState();
+}
+
+class _AssetSearchSheetState extends State<_AssetSearchSheet> {
+  static const _minChars = 2;
+  static const _limit = 20;
+  static const _debounce = Duration(milliseconds: 300);
+
+  final _ctrl = TextEditingController();
+  Timer? _timer;
+  String _query = '';
+  final List<AvailableAsset> _results = [];
+  bool _loading = false;
+  bool _hasMore = false;
+  int _offset = 0;
+  Object? _error;
+  // Rośnie przy każdym nowym wyszukiwaniu — odpowiedzi z nieaktualnego zapytania
+  // (wolniejszy network niż kolejne wpisanie) odrzucamy po niezgodności id.
+  int _reqId = 0;
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _onChanged(String v) {
+    final q = v.trim();
+    _timer?.cancel();
+    setState(() => _query = q);
+    if (q.length < _minChars) {
+      setState(() {
+        _results.clear();
+        _hasMore = false;
+        _loading = false;
+        _error = null;
+        _reqId++; // unieważnij odpowiedzi w locie
+      });
+      return;
+    }
+    _timer = Timer(_debounce, () => _search(reset: true));
+  }
+
+  Future<void> _search({required bool reset}) async {
+    if (_query.length < _minChars) return;
+    if (!reset && (_loading || !_hasMore)) return;
+    final reqId = ++_reqId;
+    final offset = reset ? 0 : _offset;
+    setState(() {
+      _loading = true;
+      _error = null;
+      if (reset) {
+        _results.clear();
+        _offset = 0;
+      }
+    });
+    try {
+      final page = await searchAssets(
+        q: _query,
+        category: widget.category,
+        limit: _limit,
+        offset: offset,
+      );
+      if (reqId != _reqId || !mounted) return; // wynik nieaktualnego zapytania
+      setState(() {
+        _results.addAll(page.results);
+        _offset = offset + page.results.length;
+        _hasMore = page.hasMore;
+        _loading = false;
+      });
+    } catch (e) {
+      if (reqId != _reqId || !mounted) return;
+      setState(() {
+        _loading = false;
+        _error = e;
+      });
+    }
+  }
+
+  bool _onScrollNotification(ScrollNotification n) {
+    if (n.metrics.pixels >= n.metrics.maxScrollExtent - 240 &&
+        _hasMore &&
+        !_loading) {
+      _search(reset: false);
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      maxChildSize: 0.9,
+      minChildSize: 0.4,
+      expand: false,
+      builder: (context, scrollController) {
+        return Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceElevated,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: TextField(
+                controller: _ctrl,
+                autofocus: true,
+                onChanged: _onChanged,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: _inputDecoration('Szukaj po nazwie lub tickerze…')
+                    .copyWith(
+                  prefixIcon: const Icon(Icons.search,
+                      color: AppColors.textSecondary, size: 20),
+                  fillColor: AppColors.surfaceElevated,
+                ),
+              ),
+            ),
+            Expanded(child: _body(scrollController)),
+            _PickerFooterHint(onTap: () {
+              Navigator.pop(context);
+              widget.onAddOther();
+            }),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _body(ScrollController scrollController) {
+    if (_query.length < _minChars) {
+      return const _CenteredHint('Wpisz co najmniej 2 znaki, aby wyszukać.');
+    }
+    if (_loading && _results.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null && _results.isEmpty) {
+      return const _CenteredHint('Nie udało się wyszukać. Spróbuj ponownie.');
+    }
+    if (_results.isEmpty) {
+      return const _CenteredHint('Brak wyników.');
+    }
+    return NotificationListener<ScrollNotification>(
+      onNotification: _onScrollNotification,
+      child: ListView.builder(
+        controller: scrollController,
+        // +1 na wskaźnik doczytywania kolejnej strony.
+        itemCount: _results.length + (_hasMore ? 1 : 0),
+        itemBuilder: (_, i) {
+          if (i >= _results.length) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            );
+          }
+          final a = _results[i];
+          return ListTile(
+            leading: AssetAvatar.asset(
+                assetId: a.assetId, category: widget.category, size: 32),
+            title: Text(a.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+            subtitle: Text(_subtitle(a),
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 12)),
+            onTap: () {
+              widget.onSelected(a);
+              Navigator.pop(context);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  // „AAPL · NASDAQ" lub „AAPL · US" — giełda gdy jest, inaczej kraj.
+  String _subtitle(AvailableAsset a) {
+    final loc = a.exchange ?? a.country;
+    return loc == null ? a.assetId : '${a.assetId} · $loc';
+  }
+}
+
+/// Wyśrodkowana podpowiedź/empty-state w pickerze.
+class _CenteredHint extends StatelessWidget {
+  final String text;
+  const _CenteredHint(this.text);
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(text,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textSecondary)),
+        ),
+      );
 }
 
 /// Stopka pickera: gdy aktywa nie ma na liście, kieruje do kategorii „Inne".
