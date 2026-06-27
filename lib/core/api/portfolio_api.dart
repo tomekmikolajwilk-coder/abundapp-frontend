@@ -13,8 +13,21 @@ const _baseUrl = functionsBaseUrl;
 // więc nie wysyłamy go już w query. Liczy się access token zalogowanego usera
 // w nagłówku Authorization (fallback do anon key tylko dla publicznych zasobów
 // jak /assets, gdy sesji jeszcze nie ma).
-Map<String, String> get _headers {
-  final token = Supabase.instance.client.auth.currentSession?.accessToken;
+// Buduje nagłówki z aktualnym tokenem. Gdy access token wygasł (apka otwarta po
+// dłuższym czasie — domyślny token żyje ~1h), najpierw odświeża sesję refresh-tokenem.
+// Bez tego pierwszy request po wygaśnięciu leciał starym tokenem → 401 → „Failed to
+// load portfolio" do czasu ręcznego re-logowania (bug #1).
+Future<Map<String, String>> _freshHeaders() async {
+  final auth = Supabase.instance.client.auth;
+  final session = auth.currentSession;
+  if (session != null && session.isExpired) {
+    try {
+      await auth.refreshSession();
+    } catch (_) {
+      // Refresh-token też mógł wygasnąć — wtedy request dostanie 401, a AuthGate wyloguje.
+    }
+  }
+  final token = auth.currentSession?.accessToken;
   return {
     'Authorization': 'Bearer ${token ?? supabaseAnonKey}',
     'apikey': supabaseAnonKey,
@@ -46,7 +59,7 @@ Future<Portfolio> fetchPortfolio({String? currency}) async {
   final params = {'currency': ?currency};
   final uri =
       Uri.parse('$_baseUrl/portfolio').replace(queryParameters: params);
-  final response = await http.get(uri, headers: _headers);
+  final response = await http.get(uri, headers: await _freshHeaders());
 
   if (response.statusCode == 200) {
     var json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -63,7 +76,7 @@ Future<Portfolio?> fetchPortfolioSnapshot(String date, {String? currency}) async
   };
   final uri =
       Uri.parse('$_baseUrl/portfolio').replace(queryParameters: params);
-  final response = await http.get(uri, headers: _headers);
+  final response = await http.get(uri, headers: await _freshHeaders());
 
   if (response.statusCode == 200) {
     var json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -79,7 +92,7 @@ Future<Portfolio?> fetchPortfolioSnapshot(String date, {String? currency}) async
 /// `metal`, `currency`), wartość = lista aktywów z ceną, posortowana po tickerze.
 Future<Map<String, List<AvailableAsset>>> fetchMarketAssets() async {
   final uri = Uri.parse('$_baseUrl/assets');
-  final response = await http.get(uri, headers: _headers);
+  final response = await http.get(uri, headers: await _freshHeaders());
   if (response.statusCode != 200) return {};
 
   final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -122,7 +135,7 @@ Future<AssetSearchPage> searchAssets({
   };
   final uri =
       Uri.parse('$_baseUrl/assets/search').replace(queryParameters: params);
-  final response = await http.get(uri, headers: _headers);
+  final response = await http.get(uri, headers: await _freshHeaders());
   if (response.statusCode != 200) throw Exception(_apiError(response));
 
   final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -161,7 +174,7 @@ String _apiError(http.Response r) {
 Future<Map<String, dynamic>> addHolding(Map<String, dynamic> body) async {
   final uri = Uri.parse('$_baseUrl/holdings');
   final response =
-      await http.post(uri, headers: _headers, body: jsonEncode(body));
+      await http.post(uri, headers: await _freshHeaders(), body: jsonEncode(body));
   if (response.statusCode >= 200 && response.statusCode < 300) {
     return jsonDecode(response.body) as Map<String, dynamic>;
   }
@@ -173,7 +186,7 @@ Future<Map<String, dynamic>> addHolding(Map<String, dynamic> body) async {
 Future<void> updateHolding(String id, Map<String, dynamic> body) async {
   final uri = Uri.parse('$_baseUrl/holdings/$id');
   final response =
-      await http.patch(uri, headers: _headers, body: jsonEncode(body));
+      await http.patch(uri, headers: await _freshHeaders(), body: jsonEncode(body));
   if (response.statusCode >= 200 && response.statusCode < 300) return;
   throw Exception(_apiError(response));
 }
@@ -181,7 +194,7 @@ Future<void> updateHolding(String id, Map<String, dynamic> body) async {
 /// Usuwa holding z portfela. DELETE /holdings/:id.
 Future<void> deleteHolding(String id) async {
   final uri = Uri.parse('$_baseUrl/holdings/$id');
-  final response = await http.delete(uri, headers: _headers);
+  final response = await http.delete(uri, headers: await _freshHeaders());
   if (response.statusCode >= 200 && response.statusCode < 300) return;
   throw Exception(_apiError(response));
 }
@@ -193,7 +206,7 @@ Future<List<Transaction>> fetchTransactions({String? currency}) async {
   final params = {'currency': ?currency};
   final uri =
       Uri.parse('$_baseUrl/transactions').replace(queryParameters: params);
-  final response = await http.get(uri, headers: _headers);
+  final response = await http.get(uri, headers: await _freshHeaders());
   if (response.statusCode != 200) return [];
 
   final json = jsonDecode(response.body);
@@ -209,7 +222,7 @@ Future<List<Transaction>> fetchTransactions({String? currency}) async {
 /// Lista dostępnych walut (kategoria `currency` z /assets) — do pickera.
 Future<List<String>> fetchCurrencies() async {
   final uri = Uri.parse('$_baseUrl/assets');
-  final response = await http.get(uri, headers: _headers);
+  final response = await http.get(uri, headers: await _freshHeaders());
   if (response.statusCode != 200) return [];
 
   final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -226,7 +239,7 @@ Future<List<String>> fetchCurrencies() async {
 
 Future<List<String>> fetchSnapshotDates() async {
   final uri = Uri.parse('$_baseUrl/snapshot-dates');
-  final response = await http.get(uri, headers: _headers);
+  final response = await http.get(uri, headers: await _freshHeaders());
 
   if (response.statusCode == 200) {
     final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -247,7 +260,7 @@ Future<List<Map<String, dynamic>>> fetchSnapshotHistory({
     'currency': ?currency,
   };
   final uri = Uri.parse('$_baseUrl/value-history').replace(queryParameters: params);
-  final response = await http.get(uri, headers: _headers);
+  final response = await http.get(uri, headers: await _freshHeaders());
   if (response.statusCode != 200) return [];
 
   final json = jsonDecode(response.body) as Map<String, dynamic>;
