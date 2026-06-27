@@ -43,4 +43,17 @@ class Portfolio {
   double valueCcyForAsset(String assetId) => holdings
       .where((h) => h.assetId == assetId)
       .fold(0, (sum, h) => sum + h.valueCcy);
+
+  // Naliczone odsetki (część wartości) w danym zakresie — do 3-podziału PnL obligacji.
+  // odsetki pozycji = valueCcy × interestRatio (ratio walutowo-niezmienny).
+  double get totalInterestCcy =>
+      holdings.fold(0, (sum, h) => sum + h.valueCcy * h.interestRatio);
+
+  double interestCcyForCategory(String categoryId) => holdings
+      .where((h) => h.groupCategory == categoryId)
+      .fold(0, (sum, h) => sum + h.valueCcy * h.interestRatio);
+
+  double interestCcyForAsset(String assetId) => holdings
+      .where((h) => h.assetId == assetId)
+      .fold(0, (sum, h) => sum + h.valueCcy * h.interestRatio);
 }

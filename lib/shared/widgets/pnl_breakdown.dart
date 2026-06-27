@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/models/portfolio.dart';
 import '../../core/models/transaction.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
@@ -54,7 +55,19 @@ class _PnlBreakdownState extends ConsumerState<PnlBreakdown> {
     if (windowStart == null || txs == null) return const SizedBox.shrink();
 
     final txComponent = transactionFlow(txs, windowStart, _matcher());
-    final priceComponent = widget.deltaValue - txComponent;
+
+    // Odsetki obligacji = przyrost naliczonych odsetek w oknie (teraz − baseline),
+    // w tym samym zakresie co deltaValue. Wydzielone z „ruchu ceny" na osobny bucket.
+    // Stary baseline bez interest_ratio → 0 (rozbicie degraduje łagodnie).
+    final current = ref.watch(portfolioProvider).valueOrNull;
+    final baseline = ref.watch(periodSnapshotProvider).valueOrNull;
+    final interestComponent = current == null
+        ? 0.0
+        : _scopedInterest(current) -
+            (baseline == null ? 0.0 : _scopedInterest(baseline));
+
+    final priceComponent = widget.deltaValue - txComponent - interestComponent;
+    final showInterest = interestComponent.abs() >= 0.005;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,6 +95,10 @@ class _PnlBreakdownState extends ConsumerState<PnlBreakdown> {
           _line('Transakcje', txComponent),
           const SizedBox(height: 6),
           _line('Ruch ceny', priceComponent),
+          if (showInterest) ...[
+            const SizedBox(height: 6),
+            _line('Odsetki', interestComponent),
+          ],
         ],
       ],
     );
@@ -127,4 +144,22 @@ class _PnlBreakdownState extends ConsumerState<PnlBreakdown> {
   }
 
   String? _assetKey(Transaction t) => t.assetId ?? t.holdingId;
+
+  /// Naliczone odsetki w bieżącym zakresie — lustro `_filteredValue` z PnlHeader,
+  /// ale dla odsetek (`valueCcy × interestRatio`). Ten sam scope co deltaValue.
+  double _scopedInterest(Portfolio p) {
+    final seg = widget.selectedSegmentId;
+    if (seg != null) {
+      return switch (widget.context.level) {
+        DashboardLevel.all => p.interestCcyForCategory(seg),
+        DashboardLevel.category => p.interestCcyForAsset(seg),
+        DashboardLevel.asset => p.totalInterestCcy,
+      };
+    }
+    return switch (widget.context.level) {
+      DashboardLevel.all => p.totalInterestCcy,
+      DashboardLevel.category => p.interestCcyForCategory(widget.context.categoryId!),
+      DashboardLevel.asset => p.interestCcyForAsset(widget.context.assetId!),
+    };
+  }
 }

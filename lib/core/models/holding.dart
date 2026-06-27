@@ -38,6 +38,11 @@ class Holding {
   /// Naliczaniem zajmuje się backend; frontend tylko przechowuje pole.
   final double? interestRate;
 
+  /// Udział naliczonych odsetek w bieżącej wartości pozycji (walutowo-niezmienny):
+  /// odsetki w dowolnej walucie = valueCcy × interestRatio. 0 dla nie-obligacji
+  /// i starych snapshotów (sprzed pola) → wtedy rozbicie degraduje do 2 składowych.
+  final double interestRatio;
+
   /// Natywna wartość jednostki i jej waluta (z /portfolio) — w nich aktywo jest
   /// trzymane na backendzie. Gdy obecne, edytor pozwala zmienić wartość w tej
   /// walucie (niezależnie od podglądu). null = backend ich (jeszcze) nie zwraca.
@@ -56,6 +61,7 @@ class Holding {
     this.name,
     this.displayCategory,
     this.interestRate,
+    this.interestRatio = 0,
     this.unitValueNative,
     this.unitCurrency,
   });
@@ -83,6 +89,7 @@ class Holding {
       name: json['name'] as String?,
       displayCategory: json['display_category'] as String?,
       interestRate: (json['interest_rate'] as num?)?.toDouble(),
+      interestRatio: (json['interest_ratio'] as num?)?.toDouble() ?? 0,
       unitValueNative: (json['unit_value'] as num?)?.toDouble(),
       unitCurrency: json['unit_currency'] as String?,
     );
