@@ -6,6 +6,10 @@ import 'core/theme/app_theme.dart';
 import 'features/auth/auth_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
 
+/// Klucz nawigatora — pozwala zdjąć pushnięte ekrany (asset/kategoria) przy
+/// wylogowaniu, niezależnie od tego, z którego ekranu user się wylogował.
+final navigatorKey = GlobalKey<NavigatorState>();
+
 class AbundApp extends StatelessWidget {
   const AbundApp({super.key});
 
@@ -13,6 +17,7 @@ class AbundApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Abundapp',
+      navigatorKey: navigatorKey,
       theme: buildAppTheme(),
       home: const _AuthGate(),
       debugShowCheckedModeBanner: false,
@@ -41,6 +46,15 @@ class _AuthGate extends ConsumerWidget {
         ref.invalidate(visitBaselineProvider);
         ref.invalidate(selectedCurrencyProvider);
         ref.invalidate(selectedPeriodProvider);
+
+        // Po wylogowaniu zdejmij pushnięte ekrany (asset/kategoria). Bez tego wiszą
+        // nad ekranem logowania i odpytują portfel bez sesji → 400 "Failed to load
+        // portfolio" (bug 2). Z ekranu głównego problemu nie było (nie jest pushnięty).
+        if (next == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            navigatorKey.currentState?.popUntil((r) => r.isFirst);
+          });
+        }
       }
     });
 

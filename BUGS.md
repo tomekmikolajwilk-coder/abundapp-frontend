@@ -53,7 +53,22 @@ Ten sam rozjazd tożsamości co #2a. Fix (backend): filtr `(h.asset_id ?? h.id) 
 (lustro frontowego `assetId = asset_id ?? id`). Plik: `supabase/functions/value-history/index.ts` (~linia 72).
 Uwaga: punkt „teraz" z #8 pokaże bieżącą wartość, ale HISTORIA będzie 0 do czasu tego fixu.
 
-## 10. „Failed to load portfolio" po wylogowaniu — 🔍 najpewniej stary build na telefonie
-Testowane na **telefonie ze starym buildem** (bez fixa #1 `_freshHeaders`). To prawie na pewno ten sam
-#1 (wygasły/niegotowy token → 401/400). Do weryfikacji **po wgraniu aktualnego buildu** na telefon.
-Jeśli wróci na świeżym buildzie — wtedy szukamy wyścigu providerów portfela przy logout/login.
+## 10. „Failed to load portfolio" po wylogowaniu — ✅ okazało się #12 (patrz niżej)
+Na świeżym buildzie wróciło, ale tylko z ekranów asset/kategoria → to #12, nie token.
+
+## 11. Akcja GPW (Bogdanka, eodhd): wartość 0 + BRAK transakcji w ledgerze — 🐛 backend, decyzja
+Bogdanka (`LWB.WAR`, `api_source='eodhd'`) wyceniana standalone cronem `fetch-eod` (godzinowy, EOD,
+demand-driven). Brak `eodhd` w rejestrze on-demand (`_shared/price_providers/index.ts` ma tylko twelve_data).
+W `resolveMarketPrice`: `getProvider('eodhd')=undefined` → `{price:null, blocked:false}` → pozycja
+utworzona, ale `recordTransaction` POMINIĘTY (guard `if price!=null`). Skutki:
+- (A) wartość 0 do najbliższego runu `fetch-eod` (≤1h) — latencja, samo się naprawia.
+- (B) **BRAK wpisu buy w ledgerze NA ZAWSZE** — nawet gdy cena przyjdzie. To realny bug
+  (PnL/transakcje gubią zakup). Dotyczy każdego źródła z własnym cronem, gdy asset nie jest jeszcze w cache.
+Fix (decyzja): albo **on-demand single-fetch eodhd przy dodaniu** (real-time `${EODHD_BASE}/real-time/
+{symbol}` + konwersja FX z price_cache; symbol z `exchange` via EXCHANGE_MAP) → cena i ledger od razu;
+albo **backfill ledgera w cronie** gdy pojawi się cena dla trzymanej pozycji bez transakcji. Rekomendacja: on-demand.
+
+## 12. Logout z ekranu asset/kategoria → 400 „Failed to load portfolio" — ✅ `app.dart`
+Ekrany asset/kategoria są PUSHNIĘTE na stos. Po wylogowaniu AuthGate przełącza swój home na ekran
+logowania, ale pushnięte ekrany zostają na wierzchu i odpytują portfel bez sesji → 400. Z ekranu głównego
+(niepushnięty) było OK. Fix: globalny `navigatorKey` + `popUntil(isFirst)` przy `session==null`.
