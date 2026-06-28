@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart' hide ChartPoint;
 import '../../core/models/chart_point.dart';
+import '../../core/models/portfolio.dart';
 import '../../core/providers/chart_provider.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
@@ -24,6 +25,10 @@ class ValueChart extends ConsumerWidget {
     final dataAsync = ref.watch(chartDataProvider(dashContext));
     final range = ref.watch(chartRangeProvider);
     final currency = ref.watch(displayCurrencyProvider);
+    // Bieżąca wartość (live) doklejana jako punkt „teraz" — świeże zakupy/zmiany widać
+    // od razu, nie dopiero po następnym dziennym cron-snapshocie (bug 2). Liczona w tym
+    // samym zakresie i walucie co historia.
+    final live = ref.watch(portfolioProvider).valueOrNull;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,12 +61,22 @@ class ValueChart extends ConsumerWidget {
               child: Text('Błąd: $e',
                   style: const TextStyle(color: AppColors.negative, fontSize: 12)),
             ),
-            data: (points) => points.isEmpty
-                ? const Center(
-                    child: Text('Brak danych',
-                        style: TextStyle(color: AppColors.textSecondary)),
-                  )
-                : _SfChart(points: points, range: range, currency: currency),
+            data: (points) {
+              final pts = live == null
+                  ? points
+                  : [
+                      ...points,
+                      ChartPoint(
+                          date: DateTime.now(),
+                          value: _scopedValue(live, dashContext)),
+                    ];
+              return pts.isEmpty
+                  ? const Center(
+                      child: Text('Brak danych',
+                          style: TextStyle(color: AppColors.textSecondary)),
+                    )
+                  : _SfChart(points: pts, range: range, currency: currency);
+            },
           ),
         ),
         const SizedBox(height: 8),
@@ -94,6 +109,13 @@ class ValueChart extends ConsumerWidget {
     );
   }
 }
+
+/// Bieżąca wartość portfela w zakresie wykresu (lustro _filteredValue/_scopedInterest).
+double _scopedValue(Portfolio p, DashboardContext ctx) => switch (ctx.level) {
+      DashboardLevel.all => p.totalValueCcy,
+      DashboardLevel.category => p.valueCcyForCategory(ctx.categoryId!),
+      DashboardLevel.asset => p.valueCcyForAsset(ctx.assetId!),
+    };
 
 // --- Syncfusion chart ---
 
