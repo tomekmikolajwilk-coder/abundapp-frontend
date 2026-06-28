@@ -29,13 +29,3 @@ Sprawdzić: `select count(*) from portfolio_snapshots where user_id=… and sour
 ## 4. Zła linia „wartość w czasie" dla `demo2@gmail.com` (idealnie prosta) — 🔍 weryfikacja (dane)
 Front mapuje punkty 1:1 bez interpolacji → prosta linia = dane są liniowe (syntetyczny seed demo2).
 Nie bug renderu. Fix = poprawić seed (backend) albo zignorować (konto demo).
-
-## 5. `fetch-crypto`: CoinGecko HTTP 429 (mail alertowy) — 🐛 do naprawy (backend)
-Cron `fetch-crypto` (CoinGecko top-100, co 5 min) dostał **429 Too Many Requests** i wysłał alert.
-Przyczyna: limit free CoinGecko (public/demo). Możliwe: brak klucza demo (`x-cg-demo-api-key`),
-za częsty cron, albo współdzielone IP. Kierunki naprawy (backend, sesja EODHD/providerów):
-- dodać sekret `COINGECKO_API_KEY` (demo plan) + nagłówek → wyższy limit;
-- ew. rzadszy cron (co 10 min) albo backoff/retry na 429;
-- **alert powinien tolerować przejściowe 429** — nie mailować przy pojedynczym rate-limicie
-  (jak `damaged_assets` dla Twelve Data), tylko gdy utrzymuje się N prób (inaczej spam).
-Uwaga: krypto i tak może iść do wymiany źródła razem z cutoverem providerów.
