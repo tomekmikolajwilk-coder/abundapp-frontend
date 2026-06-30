@@ -272,6 +272,10 @@ class _LegendRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
+                  // Bezpiecznik na długie nazwy katalogowe (EODHD bywa 60+ znaków) —
+                  // maks 2 linie, reszta „…", żeby nie rozsypać wiersza.
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
