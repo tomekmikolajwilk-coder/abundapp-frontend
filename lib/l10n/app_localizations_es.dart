@@ -280,4 +280,21 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get txEmptyHint =>
       'Añade un activo y aquí aparecerá una entrada de compra.';
+
+  @override
+  String get egHalf => 'p. ej. 0,5';
+
+  @override
+  String get egOne => 'p. ej. 1';
+
+  @override
+  String get egFive => 'p. ej. 5';
+
+  @override
+  String get etfDisplayHint =>
+      'P. ej. un ETF de bonos puede mostrarse en «Bonos» en lugar de «ETF».';
+
+  @override
+  String get otherDisplayHint =>
+      'Un activo que no está en las listas (p. ej. una acción no admitida) puede mostrarse en una categoría correspondiente.';
 }

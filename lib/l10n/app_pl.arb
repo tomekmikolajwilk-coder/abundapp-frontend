@@ -87,5 +87,10 @@
   "txLoadError": "Nie udało się pobrać transakcji",
   "txAtPrice": "po {price}",
   "txEmpty": "Brak transakcji",
-  "txEmptyHint": "Dodaj aktywo, a pojawi się tu wpis kupna."
+  "txEmptyHint": "Dodaj aktywo, a pojawi się tu wpis kupna.",
+  "egHalf": "np. 0,5",
+  "egOne": "np. 1",
+  "egFive": "np. 5",
+  "etfDisplayHint": "Np. ETF na obligacje możesz pokazać w „Obligacje” zamiast „ETF-y”.",
+  "otherDisplayHint": "Aktywo, którego nie ma na listach (np. akcja spoza obsługiwanych) możesz pokazać w pasującej kategorii."
 }

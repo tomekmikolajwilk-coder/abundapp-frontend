@@ -280,4 +280,21 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get txEmptyHint =>
       'Füge eine Anlage hinzu, dann erscheint hier ein Kaufeintrag.';
+
+  @override
+  String get egHalf => 'z. B. 0,5';
+
+  @override
+  String get egOne => 'z. B. 1';
+
+  @override
+  String get egFive => 'z. B. 5';
+
+  @override
+  String get etfDisplayHint =>
+      'Z. B. einen Anleihen-ETF kannst du unter „Anleihen“ statt „ETFs“ anzeigen.';
+
+  @override
+  String get otherDisplayHint =>
+      'Eine Anlage, die nicht in den Listen steht (z. B. eine nicht unterstützte Aktie), kannst du in einer passenden Kategorie anzeigen.';
 }

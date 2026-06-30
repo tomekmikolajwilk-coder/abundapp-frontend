@@ -278,4 +278,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txEmptyHint => 'Dodaj aktywo, a pojawi się tu wpis kupna.';
+
+  @override
+  String get egHalf => 'np. 0,5';
+
+  @override
+  String get egOne => 'np. 1';
+
+  @override
+  String get egFive => 'np. 5';
+
+  @override
+  String get etfDisplayHint =>
+      'Np. ETF na obligacje możesz pokazać w „Obligacje” zamiast „ETF-y”.';
+
+  @override
+  String get otherDisplayHint =>
+      'Aktywo, którego nie ma na listach (np. akcja spoza obsługiwanych) możesz pokazać w pasującej kategorii.';
 }

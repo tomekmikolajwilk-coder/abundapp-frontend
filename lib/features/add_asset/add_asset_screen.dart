@@ -226,14 +226,14 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
       const SizedBox(height: 20),
       _FieldLabel(l.fieldAmountOwned),
       const SizedBox(height: 8),
-      _NumberField(controller: _amountCtrl, hint: 'np. 0,5'),
+      _NumberField(controller: _amountCtrl, hint: l.egHalf),
       if (cat.id == 'etf') ...[
         const SizedBox(height: 20),
         _FieldLabel(l.showInCategory),
         const SizedBox(height: 4),
-        const Text(
-          'Np. ETF na obligacje możesz pokazać w „Obligacje" zamiast „ETF-y".',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        Text(
+          l.etfDisplayHint,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
         const SizedBox(height: 8),
         _DisplayCategoryPicker(
@@ -255,7 +255,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
       const SizedBox(height: 20),
       _FieldLabel(l.fieldQuantity),
       const SizedBox(height: 8),
-      _NumberField(controller: _amountCtrl, hint: 'np. 1'),
+      _NumberField(controller: _amountCtrl, hint: l.egOne),
       const SizedBox(height: 20),
       Row(
         children: [
@@ -282,16 +282,15 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
           style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
         const SizedBox(height: 8),
-        _NumberField(controller: _rateCtrl, hint: 'np. 5'),
+        _NumberField(controller: _rateCtrl, hint: l.egFive),
       ],
       if (cat.id == 'other') ...[
         const SizedBox(height: 20),
         _FieldLabel(l.showInCategory),
         const SizedBox(height: 4),
-        const Text(
-          'Aktywo, którego nie ma na listach (np. akcja spoza obsługiwanych) '
-          'możesz pokazać w pasującej kategorii.',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        Text(
+          l.otherDisplayHint,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
         const SizedBox(height: 8),
         _DisplayCategoryPicker(

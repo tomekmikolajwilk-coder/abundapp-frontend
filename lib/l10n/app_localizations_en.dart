@@ -279,4 +279,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get txEmptyHint =>
       'Add an asset and a purchase entry will appear here.';
+
+  @override
+  String get egHalf => 'e.g. 0.5';
+
+  @override
+  String get egOne => 'e.g. 1';
+
+  @override
+  String get egFive => 'e.g. 5';
+
+  @override
+  String get etfDisplayHint =>
+      'E.g. a bond ETF can be shown under \"Bonds\" instead of \"ETFs\".';
+
+  @override
+  String get otherDisplayHint =>
+      'An asset that\'s not in the lists (e.g. an unsupported stock) can be shown in a matching category.';
 }

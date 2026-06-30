@@ -88,5 +88,10 @@
   "txAtPrice": "at {price}",
   "@txAtPrice": { "placeholders": { "price": { "type": "String" } } },
   "txEmpty": "No transactions",
-  "txEmptyHint": "Add an asset and a purchase entry will appear here."
+  "txEmptyHint": "Add an asset and a purchase entry will appear here.",
+  "egHalf": "e.g. 0.5",
+  "egOne": "e.g. 1",
+  "egFive": "e.g. 5",
+  "etfDisplayHint": "E.g. a bond ETF can be shown under \"Bonds\" instead of \"ETFs\".",
+  "otherDisplayHint": "An asset that's not in the lists (e.g. an unsupported stock) can be shown in a matching category."
 }

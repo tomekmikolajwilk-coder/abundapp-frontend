@@ -619,6 +619,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add an asset and a purchase entry will appear here.'**
   String get txEmptyHint;
+
+  /// No description provided for @egHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 0.5'**
+  String get egHalf;
+
+  /// No description provided for @egOne.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 1'**
+  String get egOne;
+
+  /// No description provided for @egFive.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 5'**
+  String get egFive;
+
+  /// No description provided for @etfDisplayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'E.g. a bond ETF can be shown under \"Bonds\" instead of \"ETFs\".'**
+  String get etfDisplayHint;
+
+  /// No description provided for @otherDisplayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'An asset that\'s not in the lists (e.g. an unsupported stock) can be shown in a matching category.'**
+  String get otherDisplayHint;
 }
 
 class _AppLocalizationsDelegate

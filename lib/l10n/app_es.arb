@@ -87,5 +87,10 @@
   "txLoadError": "No se pudieron cargar las transacciones",
   "txAtPrice": "a {price}",
   "txEmpty": "Sin transacciones",
-  "txEmptyHint": "Añade un activo y aquí aparecerá una entrada de compra."
+  "txEmptyHint": "Añade un activo y aquí aparecerá una entrada de compra.",
+  "egHalf": "p. ej. 0,5",
+  "egOne": "p. ej. 1",
+  "egFive": "p. ej. 5",
+  "etfDisplayHint": "P. ej. un ETF de bonos puede mostrarse en «Bonos» en lugar de «ETF».",
+  "otherDisplayHint": "Un activo que no está en las listas (p. ej. una acción no admitida) puede mostrarse en una categoría correspondiente."
 }

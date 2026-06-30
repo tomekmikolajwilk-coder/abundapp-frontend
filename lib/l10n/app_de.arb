@@ -87,5 +87,10 @@
   "txLoadError": "Transaktionen konnten nicht geladen werden",
   "txAtPrice": "zu {price}",
   "txEmpty": "Keine Transaktionen",
-  "txEmptyHint": "Füge eine Anlage hinzu, dann erscheint hier ein Kaufeintrag."
+  "txEmptyHint": "Füge eine Anlage hinzu, dann erscheint hier ein Kaufeintrag.",
+  "egHalf": "z. B. 0,5",
+  "egOne": "z. B. 1",
+  "egFive": "z. B. 5",
+  "etfDisplayHint": "Z. B. einen Anleihen-ETF kannst du unter „Anleihen“ statt „ETFs“ anzeigen.",
+  "otherDisplayHint": "Eine Anlage, die nicht in den Listen steht (z. B. eine nicht unterstützte Aktie), kannst du in einer passenden Kategorie anzeigen."
 }

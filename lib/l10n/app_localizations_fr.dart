@@ -281,4 +281,21 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get txEmptyHint =>
       'Ajoutez un actif et une entrée d\'achat apparaîtra ici.';
+
+  @override
+  String get egHalf => 'p. ex. 0,5';
+
+  @override
+  String get egOne => 'p. ex. 1';
+
+  @override
+  String get egFive => 'p. ex. 5';
+
+  @override
+  String get etfDisplayHint =>
+      'P. ex. un ETF obligataire peut être affiché sous « Obligations » au lieu de « ETF ».';
+
+  @override
+  String get otherDisplayHint =>
+      'Un actif qui n\'est pas dans les listes (p. ex. une action non prise en charge) peut être affiché dans une catégorie correspondante.';
 }
