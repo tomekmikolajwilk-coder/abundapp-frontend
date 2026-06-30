@@ -6,6 +6,7 @@ import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
+import '../../l10n/app_localizations.dart';
 import 'asset_avatar.dart';
 import 'chart_reveal.dart';
 import 'chart_segments.dart';
@@ -31,7 +32,8 @@ class DonutChart extends ConsumerWidget {
       loading: () => const _ChartSkeleton(),
       error: (err, st) => const SizedBox.shrink(),
       data: (portfolio) {
-        final segments = buildChartSegments(portfolio.holdings, dashContext);
+        final l = AppLocalizations.of(context);
+        final segments = buildChartSegments(portfolio.holdings, dashContext, l);
         if (segments.isEmpty) return const SizedBox.shrink();
 
         final total = segments.fold(0.0, (sum, s) => sum + s.value);
@@ -93,8 +95,8 @@ class DonutChart extends ConsumerWidget {
                         : _DefaultLabel(
                             key: const ValueKey('default'),
                             label: dashContext.level == DashboardLevel.all
-                                ? 'Portfel'
-                                : dashContext.title,
+                                ? l.portfolioCenter
+                                : dashContext.title(l),
                           ),
                   ),
                 ],

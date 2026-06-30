@@ -182,6 +182,72 @@ abstract class AppLocalizations {
   /// **'Log out'**
   String get logout;
 
+  /// No description provided for @myPortfolio.
+  ///
+  /// In en, this message translates to:
+  /// **'My portfolio'**
+  String get myPortfolio;
+
+  /// No description provided for @portfolioCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio'**
+  String get portfolioCenter;
+
+  /// No description provided for @portfolioValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio value'**
+  String get portfolioValue;
+
+  /// No description provided for @valueOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} value'**
+  String valueOf(String name);
+
+  /// No description provided for @yourAsset.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {asset}'**
+  String yourAsset(String asset);
+
+  /// No description provided for @periodLastVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Since last visit'**
+  String get periodLastVisit;
+
+  /// No description provided for @periodYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Since yesterday'**
+  String get periodYesterday;
+
+  /// No description provided for @periodWeekStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Week to date'**
+  String get periodWeekStart;
+
+  /// No description provided for @periodMonthStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Month to date'**
+  String get periodMonthStart;
+
+  /// No description provided for @periodYearStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Year to date'**
+  String get periodYearStart;
+
+  /// No description provided for @periodAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get periodAllTime;
+
   /// No description provided for @categoryCrypto.
   ///
   /// In en, this message translates to:

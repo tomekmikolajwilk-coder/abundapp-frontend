@@ -99,7 +99,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     // Tytuł ekranu aktywa = nazwa custom assetu (a nie surowe id, którym jest
     // assetId dla manuali). Dla market i pozostałych poziomów — jak dotąd.
-    var screenTitle = widget.context.title;
+    var screenTitle = widget.context.title(AppLocalizations.of(context));
     if (widget.context.level == DashboardLevel.asset && portfolio != null) {
       for (final h in portfolio.holdings) {
         if (h.assetId == widget.context.assetId) {
@@ -763,8 +763,8 @@ class _HoldingDetailCard extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Typ: ${categoryLabel(holding.category)} · '
-                      'pokazywane w: ${categoryLabel(holding.groupCategory)}',
+                      'Typ: ${categoryLabel(AppLocalizations.of(context), holding.category)} · '
+                      'pokazywane w: ${categoryLabel(AppLocalizations.of(context), holding.groupCategory)}',
                       style: const TextStyle(
                           color: AppColors.textSecondary, fontSize: 12),
                     ),

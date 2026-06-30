@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+
 enum PnlPeriod {
   lastVisit,
   yesterday,
@@ -8,13 +10,13 @@ enum PnlPeriod {
 }
 
 extension PnlPeriodLabel on PnlPeriod {
-  String get label => switch (this) {
-        PnlPeriod.lastVisit => 'Od ostatniej wizyty',
-        PnlPeriod.yesterday => 'Od wczoraj',
-        PnlPeriod.weekStart => 'Od początku tygodnia',
-        PnlPeriod.monthStart => 'Od początku miesiąca',
-        PnlPeriod.yearStart => 'Od początku roku',
-        PnlPeriod.allTime => 'Od początku',
+  String label(AppLocalizations l) => switch (this) {
+        PnlPeriod.lastVisit => l.periodLastVisit,
+        PnlPeriod.yesterday => l.periodYesterday,
+        PnlPeriod.weekStart => l.periodWeekStart,
+        PnlPeriod.monthStart => l.periodMonthStart,
+        PnlPeriod.yearStart => l.periodYearStart,
+        PnlPeriod.allTime => l.periodAllTime,
       };
 
   /// Zwraca datę snapshotu odpowiadającą danemu okresowi.

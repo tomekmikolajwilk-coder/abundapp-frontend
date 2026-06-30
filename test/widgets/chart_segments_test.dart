@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:abundapp/core/models/holding.dart';
 import 'package:abundapp/features/dashboard/dashboard_context.dart';
+import 'package:abundapp/l10n/app_localizations_pl.dart';
 import 'package:abundapp/shared/widgets/chart_segments.dart';
 
 Holding h(String id, String cat, double ccy) => Holding(
@@ -13,6 +14,7 @@ Holding h(String id, String cat, double ccy) => Holding(
     );
 
 void main() {
+  final l = AppLocalizationsPl();
   final holdings = [
     h('BTC', 'crypto', 100),
     h('ETH', 'crypto', 50),
@@ -22,14 +24,14 @@ void main() {
 
   group('buildChartSegments — poziom ALL', () {
     test('agreguje po kategorii i sortuje malejąco', () {
-      final segs = buildChartSegments(holdings, const DashboardContext.all());
+      final segs = buildChartSegments(holdings, const DashboardContext.all(), l);
       // crypto=150, stock=200, metal=30 → stock, crypto, metal.
       expect(segs.map((s) => s.id).toList(), ['stock', 'crypto', 'metal']);
       expect(segs.map((s) => s.value).toList(), [200, 150, 30]);
     });
 
     test('label kategorii jest przetłumaczony', () {
-      final segs = buildChartSegments(holdings, const DashboardContext.all());
+      final segs = buildChartSegments(holdings, const DashboardContext.all(), l);
       final crypto = segs.firstWhere((s) => s.id == 'crypto');
       expect(crypto.label, 'Krypto');
     });
@@ -37,8 +39,8 @@ void main() {
 
   group('buildChartSegments — poziom CATEGORY', () {
     test('filtruje aktywa danej kategorii i sortuje malejąco', () {
-      final segs =
-          buildChartSegments(holdings, const DashboardContext.category('crypto'));
+      final segs = buildChartSegments(
+          holdings, const DashboardContext.category('crypto'), l);
       expect(segs.map((s) => s.id).toList(), ['BTC', 'ETH']);
       expect(segs.map((s) => s.value).toList(), [100, 50]);
       // label = ticker.
@@ -47,7 +49,7 @@ void main() {
 
     test('nieznana kategoria → pusto', () {
       final segs = buildChartSegments(
-          holdings, const DashboardContext.category('nieistnieje'));
+          holdings, const DashboardContext.category('nieistnieje'), l);
       expect(segs, isEmpty);
     });
   });
@@ -65,7 +67,7 @@ void main() {
 
     test('ALL: ETF z display_category liczy się w docelowej kategorii', () {
       final segs = buildChartSegments(
-          [...holdings, etfBond], const DashboardContext.all());
+          [...holdings, etfBond], const DashboardContext.all(), l);
       final ids = segs.map((s) => s.id).toList();
       expect(ids, contains('bonds'));
       expect(ids, isNot(contains('etf')));
@@ -74,7 +76,7 @@ void main() {
 
     test('CATEGORY=bonds zawiera ETF mimo category=etf', () {
       final segs = buildChartSegments(
-          [...holdings, etfBond], const DashboardContext.category('bonds'));
+          [...holdings, etfBond], const DashboardContext.category('bonds'), l);
       expect(segs.map((s) => s.id).toList(), ['OBLI']);
     });
   });
@@ -82,7 +84,7 @@ void main() {
   group('buildChartSegments — poziom ASSET', () {
     test('zwraca pustą listę (brak alokacji do pokazania)', () {
       final segs = buildChartSegments(
-          holdings, const DashboardContext.asset('crypto', 'BTC'));
+          holdings, const DashboardContext.asset('crypto', 'BTC'), l);
       expect(segs, isEmpty);
     });
   });

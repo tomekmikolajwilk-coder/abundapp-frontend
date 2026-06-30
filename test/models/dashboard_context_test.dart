@@ -1,23 +1,26 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:abundapp/features/dashboard/dashboard_context.dart';
+import 'package:abundapp/l10n/app_localizations_pl.dart';
 
 void main() {
+  final l = AppLocalizationsPl();
+
   group('categoryLabel', () {
     test('tłumaczy znane kategorie na PL', () {
-      expect(categoryLabel('crypto'), 'Krypto');
-      expect(categoryLabel('stock'), 'Akcje');
-      expect(categoryLabel('etf'), 'ETF-y');
-      expect(categoryLabel('metal'), 'Metale');
-      expect(categoryLabel('currency'), 'Gotówka');
+      expect(categoryLabel(l, 'crypto'), 'Krypto');
+      expect(categoryLabel(l, 'stock'), 'Akcje');
+      expect(categoryLabel(l, 'etf'), 'ETF-y');
+      expect(categoryLabel(l, 'metal'), 'Metale');
+      expect(categoryLabel(l, 'currency'), 'Gotówka');
     });
 
     test('kategorie manualne mają polskie etykiety', () {
-      expect(categoryLabel('real_estate'), 'Nieruchomości');
-      expect(categoryLabel('bonds'), 'Obligacje');
+      expect(categoryLabel(l, 'real_estate'), 'Nieruchomości');
+      expect(categoryLabel(l, 'bonds'), 'Obligacje');
     });
 
     test('nieznana kategoria → surowe id (fallback bez crasha)', () {
-      expect(categoryLabel('zzz_unknown'), 'zzz_unknown');
+      expect(categoryLabel(l, 'zzz_unknown'), 'zzz_unknown');
     });
   });
 
@@ -28,7 +31,7 @@ void main() {
       expect(ctx.isTopLevel, true);
       expect(ctx.categoryId, isNull);
       expect(ctx.assetId, isNull);
-      expect(ctx.title, 'Mój portfel');
+      expect(ctx.title(l), 'Mój portfel');
     });
 
     test('category: tytuł = label kategorii, nie top-level', () {
@@ -37,7 +40,7 @@ void main() {
       expect(ctx.isTopLevel, false);
       expect(ctx.categoryId, 'crypto');
       expect(ctx.assetId, isNull);
-      expect(ctx.title, 'Krypto');
+      expect(ctx.title(l), 'Krypto');
     });
 
     test('asset: tytuł = ticker, trzyma kategorię i asset', () {
@@ -46,7 +49,7 @@ void main() {
       expect(ctx.isTopLevel, false);
       expect(ctx.categoryId, 'crypto');
       expect(ctx.assetId, 'BTC');
-      expect(ctx.title, 'BTC');
+      expect(ctx.title(l), 'BTC');
     });
   });
 }

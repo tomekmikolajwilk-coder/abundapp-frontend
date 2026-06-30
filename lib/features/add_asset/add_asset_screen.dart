@@ -7,6 +7,7 @@ import '../../core/api/portfolio_api.dart';
 import '../../core/models/available_asset.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/asset_avatar.dart';
 import '../dashboard/dashboard_context.dart';
 import '../dashboard/dashboard_screen.dart';
@@ -117,7 +118,9 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
           onPressed: _back,
         ),
         title: Text(
-          cat == null ? 'Dodaj aktywo' : categoryLabel(cat.id),
+          cat == null
+              ? AppLocalizations.of(context).addAsset
+              : categoryLabel(AppLocalizations.of(context), cat.id),
           style: const TextStyle(
               color: AppColors.textPrimary, fontWeight: FontWeight.w600),
         ),
@@ -167,7 +170,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
             children: [
               AssetAvatar.category(c.id, size: 38),
               const SizedBox(width: 14),
-              Text(categoryLabel(c.id),
+              Text(categoryLabel(AppLocalizations.of(context), c.id),
                   style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 15,
@@ -680,7 +683,8 @@ class _DisplayCategoryPicker extends StatelessWidget {
       children: [
         _chip(noneLabel, value == null, () => onChanged(null)),
         ...targets.map(
-          (c) => _chip(categoryLabel(c), value == c, () => onChanged(c)),
+          (c) => _chip(categoryLabel(AppLocalizations.of(context), c), value == c,
+              () => onChanged(c)),
         ),
       ],
     );

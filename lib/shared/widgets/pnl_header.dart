@@ -5,6 +5,7 @@ import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
+import '../../l10n/app_localizations.dart';
 import 'pnl_breakdown.dart';
 import 'period_selector.dart';
 
@@ -50,7 +51,7 @@ class PnlHeader extends ConsumerWidget {
         final base = currentValue - effectivePnl;
         final pnlPercent = base != 0 ? (effectivePnl / base) * 100 : 0.0;
 
-        final valueLabel = _valueLabel(portfolio);
+        final valueLabel = _valueLabel(AppLocalizations.of(ctx), portfolio);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,21 +119,18 @@ class PnlHeader extends ConsumerWidget {
     };
   }
 
-  String _valueLabel(Portfolio p) {
+  String _valueLabel(AppLocalizations l, Portfolio p) {
     if (selectedSegmentId != null) {
       return switch (context.level) {
-        DashboardLevel.all =>
-          'Wartość kategorii ${categoryLabel(selectedSegmentId!)}',
-        DashboardLevel.category =>
-          'Twoje ${_assetName(p, selectedSegmentId!)} w portfelu',
-        DashboardLevel.asset => 'Wartość portfela',
+        DashboardLevel.all => l.valueOf(categoryLabel(l, selectedSegmentId!)),
+        DashboardLevel.category => l.yourAsset(_assetName(p, selectedSegmentId!)),
+        DashboardLevel.asset => l.portfolioValue,
       };
     }
     return switch (context.level) {
-      DashboardLevel.all => 'Wartość portfela',
-      DashboardLevel.category => 'Wartość ${context.title}',
-      DashboardLevel.asset =>
-        'Twoje ${_assetName(p, context.assetId!)} w portfelu',
+      DashboardLevel.all => l.portfolioValue,
+      DashboardLevel.category => l.valueOf(context.title(l)),
+      DashboardLevel.asset => l.yourAsset(_assetName(p, context.assetId!)),
     };
   }
 

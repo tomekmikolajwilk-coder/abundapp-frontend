@@ -48,6 +48,43 @@ class AppLocalizationsEs extends AppLocalizations {
   String get logout => 'Cerrar sesión';
 
   @override
+  String get myPortfolio => 'Mi cartera';
+
+  @override
+  String get portfolioCenter => 'Cartera';
+
+  @override
+  String get portfolioValue => 'Valor de la cartera';
+
+  @override
+  String valueOf(String name) {
+    return 'Valor de $name';
+  }
+
+  @override
+  String yourAsset(String asset) {
+    return 'Tu $asset';
+  }
+
+  @override
+  String get periodLastVisit => 'Desde la última visita';
+
+  @override
+  String get periodYesterday => 'Desde ayer';
+
+  @override
+  String get periodWeekStart => 'Desde el inicio de la semana';
+
+  @override
+  String get periodMonthStart => 'Desde el inicio del mes';
+
+  @override
+  String get periodYearStart => 'Desde el inicio del año';
+
+  @override
+  String get periodAllTime => 'Desde el inicio';
+
+  @override
   String get categoryCrypto => 'Cripto';
 
   @override

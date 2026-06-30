@@ -356,7 +356,7 @@ class _FullScreenChart extends ConsumerWidget {
               Row(
                 children: [
                   Text(
-                    dashContext.title,
+                    dashContext.title(AppLocalizations.of(context)),
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const Spacer(),

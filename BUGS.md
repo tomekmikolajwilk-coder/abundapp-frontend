@@ -1,5 +1,11 @@
 # Bugi — abundapp (tracker)
 
+## 🐛 Otwarte
+- **Bar-chart (widok „stats"): złe łamanie nazw kategorii.** Etykieta ma sztywną szerokość 56px
+  (`allocation_chart.dart` ~`SizedBox(width: 56)`), więc długie nazwy łamią się w środku słowa
+  („Nieruch/omości", „Obligacj/e"). Fix: szersza kolumna etykiety + maxLines/ellipsis albo mniejszy font.
+- **(zgłoszony bug #2 — brak treści, nie doszedł; czeka na opis.)**
+
 ## ✅ Naprawione (ta sesja)
 
 | # | Bug | Fix |

@@ -3,6 +3,7 @@ import '../../core/models/holding.dart';
 import '../../core/theme/app_theme.dart';
 import '../../features/dashboard/dashboard_context.dart';
 import '../../features/dashboard/dashboard_screen.dart';
+import '../../l10n/app_localizations.dart';
 import 'asset_avatar.dart';
 
 /// Aktywa natywne kategorii [categoryId], ale przeniesione do wyświetlania
@@ -68,7 +69,7 @@ class RedirectRow extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  '${holding.displayName}  →  ${categoryLabel(holding.groupCategory)}',
+                  '${holding.displayName}  →  ${categoryLabel(AppLocalizations.of(context), holding.groupCategory)}',
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                       color: AppColors.textSecondary, fontSize: 13),

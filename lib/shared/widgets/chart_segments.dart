@@ -1,5 +1,6 @@
 import '../../core/models/holding.dart';
 import '../../features/dashboard/dashboard_context.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Pojedynczy wycinek wykresu alokacji (kategoria na poziomie ALL, aktywo na
 /// poziomie CATEGORY). Współdzielony przez donut i bar chart.
@@ -22,6 +23,7 @@ class ChartSegment {
 List<ChartSegment> buildChartSegments(
   List<Holding> holdings,
   DashboardContext ctx,
+  AppLocalizations l,
 ) {
   if (ctx.level == DashboardLevel.all) {
     // Grupujemy po kategorii wyświetlania — ETF z ustawioną display_category
@@ -32,7 +34,7 @@ List<ChartSegment> buildChartSegments(
     }
     return map.entries
         .map((e) =>
-            ChartSegment(id: e.key, label: categoryLabel(e.key), value: e.value))
+            ChartSegment(id: e.key, label: categoryLabel(l, e.key), value: e.value))
         .toList()
       ..sort((a, b) => b.value.compareTo(a.value));
   }

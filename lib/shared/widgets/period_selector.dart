@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/pnl_period.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
 
 class PeriodSelector extends ConsumerWidget {
   const PeriodSelector({super.key});
@@ -24,7 +25,7 @@ class PeriodSelector extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              selected.label,
+              selected.label(AppLocalizations.of(context)),
               style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
@@ -67,7 +68,7 @@ class PeriodSelector extends ConsumerWidget {
             ),
             ...available.map((period) => ListTile(
                   title: Text(
-                    period.label,
+                    period.label(AppLocalizations.of(context)),
                     style: TextStyle(
                       color: period == selected
                           ? AppColors.accent

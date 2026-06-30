@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+
 enum DashboardLevel { all, category, asset }
 
 class DashboardContext {
@@ -20,27 +22,27 @@ class DashboardContext {
         categoryId = category,
         assetId = asset;
 
-  String get title => switch (level) {
-        DashboardLevel.all => 'Mój portfel',
-        DashboardLevel.category => categoryLabel(categoryId!),
+  String title(AppLocalizations l) => switch (level) {
+        DashboardLevel.all => l.myPortfolio,
+        DashboardLevel.category => categoryLabel(l, categoryId!),
         DashboardLevel.asset => assetId!,
       };
 
   bool get isTopLevel => level == DashboardLevel.all;
 }
 
-String categoryLabel(String id) => switch (id) {
-      'crypto' => 'Krypto',
-      'stock' => 'Akcje',
-      'etf' => 'ETF-y',
-      'metal' => 'Metale',
-      'currency' => 'Gotówka',
-      'real_estate' => 'Nieruchomości',
-      'valuables' => 'Kosztowności',
-      'bonds' => 'Obligacje',
-      'deposits' => 'Lokaty',
-      'other' => 'Inne',
+String categoryLabel(AppLocalizations l, String id) => switch (id) {
+      'crypto' => l.categoryCrypto,
+      'stock' => l.categoryStock,
+      'etf' => l.categoryEtf,
+      'metal' => l.categoryMetal,
+      'currency' => l.categoryCurrency,
+      'real_estate' => l.categoryRealEstate,
+      'valuables' => l.categoryValuables,
+      'bonds' => l.categoryBonds,
+      'deposits' => l.categoryDeposits,
+      'other' => l.categoryOther,
       // Sentinel z backendu (asset bez kategorii) — nigdy nie pokazuj surowego „unknown" userowi.
-      'unknown' => 'Inne',
+      'unknown' => l.categoryOther,
       _ => id,
     };

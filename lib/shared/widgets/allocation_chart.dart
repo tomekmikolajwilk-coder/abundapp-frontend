@@ -4,6 +4,7 @@ import '../../core/models/holding.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../features/dashboard/dashboard_context.dart';
+import '../../l10n/app_localizations.dart';
 import 'asset_avatar.dart';
 import 'chart_reveal.dart';
 import 'chart_segments.dart';
@@ -29,7 +30,8 @@ class AllocationChart extends ConsumerWidget {
       loading: () => const _ChartSkeleton(),
       error: (err, st) => const SizedBox.shrink(),
       data: (portfolio) {
-        final segments = buildChartSegments(portfolio.holdings, dashContext);
+        final segments =
+            buildChartSegments(portfolio.holdings, dashContext, AppLocalizations.of(context));
         if (segments.isEmpty) return const SizedBox.shrink();
 
         final total = segments.fold(0.0, (sum, s) => sum + s.value);

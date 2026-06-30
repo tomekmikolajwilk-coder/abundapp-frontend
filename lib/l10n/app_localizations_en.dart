@@ -48,6 +48,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Log out';
 
   @override
+  String get myPortfolio => 'My portfolio';
+
+  @override
+  String get portfolioCenter => 'Portfolio';
+
+  @override
+  String get portfolioValue => 'Portfolio value';
+
+  @override
+  String valueOf(String name) {
+    return '$name value';
+  }
+
+  @override
+  String yourAsset(String asset) {
+    return 'Your $asset';
+  }
+
+  @override
+  String get periodLastVisit => 'Since last visit';
+
+  @override
+  String get periodYesterday => 'Since yesterday';
+
+  @override
+  String get periodWeekStart => 'Week to date';
+
+  @override
+  String get periodMonthStart => 'Month to date';
+
+  @override
+  String get periodYearStart => 'Year to date';
+
+  @override
+  String get periodAllTime => 'All time';
+
+  @override
   String get categoryCrypto => 'Crypto';
 
   @override

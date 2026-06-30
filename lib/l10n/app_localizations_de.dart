@@ -48,6 +48,43 @@ class AppLocalizationsDe extends AppLocalizations {
   String get logout => 'Abmelden';
 
   @override
+  String get myPortfolio => 'Mein Portfolio';
+
+  @override
+  String get portfolioCenter => 'Portfolio';
+
+  @override
+  String get portfolioValue => 'Portfoliowert';
+
+  @override
+  String valueOf(String name) {
+    return 'Wert von $name';
+  }
+
+  @override
+  String yourAsset(String asset) {
+    return 'Dein $asset';
+  }
+
+  @override
+  String get periodLastVisit => 'Seit letztem Besuch';
+
+  @override
+  String get periodYesterday => 'Seit gestern';
+
+  @override
+  String get periodWeekStart => 'Seit Wochenbeginn';
+
+  @override
+  String get periodMonthStart => 'Seit Monatsbeginn';
+
+  @override
+  String get periodYearStart => 'Seit Jahresbeginn';
+
+  @override
+  String get periodAllTime => 'Gesamt';
+
+  @override
   String get categoryCrypto => 'Krypto';
 
   @override

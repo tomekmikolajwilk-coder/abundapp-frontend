@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:abundapp/core/models/pnl_period.dart';
+import 'package:abundapp/l10n/app_localizations_pl.dart';
 
 void main() {
   group('PnlPeriod.snapshotDate', () {
@@ -46,8 +47,9 @@ void main() {
 
   group('PnlPeriod.label', () {
     test('każdy okres ma niepustą etykietę', () {
+      final l = AppLocalizationsPl();
       for (final p in PnlPeriod.values) {
-        expect(p.label, isNotEmpty);
+        expect(p.label(l), isNotEmpty);
       }
     });
   });
