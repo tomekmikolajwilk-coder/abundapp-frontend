@@ -215,4 +215,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseAsset => 'Choose asset';
+
+  @override
+  String get authTagline => 'Your wealth in one place.';
+
+  @override
+  String get authSignInTitle => 'Sign in';
+
+  @override
+  String get authSignUpTitle => 'Create account';
+
+  @override
+  String get authSignIn => 'Sign in';
+
+  @override
+  String get authSignUp => 'Sign up';
+
+  @override
+  String get authToggleToSignIn => 'Already have an account? Sign in';
+
+  @override
+  String get authToggleToSignUp => 'No account? Sign up';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authEnterEmail => 'Enter your email';
+
+  @override
+  String get authInvalidEmail => 'Invalid email';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String get authEnterPassword => 'Enter your password';
+
+  @override
+  String get authPasswordMin => 'Password must be at least 6 characters';
+
+  @override
+  String get authAccountCreated =>
+      'Account created. Check your email to confirm it, then sign in.';
+
+  @override
+  String get authGenericError => 'Something went wrong. Please try again.';
+
+  @override
+  String get txTitle => 'Transactions';
+
+  @override
+  String get txLoadError => 'Couldn\'t load transactions';
+
+  @override
+  String txAtPrice(String price) {
+    return 'at $price';
+  }
+
+  @override
+  String get txEmpty => 'No transactions';
+
+  @override
+  String get txEmptyHint =>
+      'Add an asset and a purchase entry will appear here.';
 }

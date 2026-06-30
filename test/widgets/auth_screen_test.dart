@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:abundapp/features/auth/auth_screen.dart';
+import 'package:abundapp/l10n/app_localizations.dart';
 
-Widget _wrap() => const ProviderScope(
-      child: MaterialApp(home: AuthScreen()),
+Widget _wrap() => ProviderScope(
+      child: MaterialApp(
+        locale: const Locale('pl'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const AuthScreen(),
+      ),
     );
 
 void main() {

@@ -499,6 +499,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose asset'**
   String get chooseAsset;
+
+  /// No description provided for @authTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wealth in one place.'**
+  String get authTagline;
+
+  /// No description provided for @authSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignInTitle;
+
+  /// No description provided for @authSignUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get authSignUpTitle;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignIn;
+
+  /// No description provided for @authSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up'**
+  String get authSignUp;
+
+  /// No description provided for @authToggleToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get authToggleToSignIn;
+
+  /// No description provided for @authToggleToSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'No account? Sign up'**
+  String get authToggleToSignUp;
+
+  /// No description provided for @authEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmail;
+
+  /// No description provided for @authEnterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email'**
+  String get authEnterEmail;
+
+  /// No description provided for @authInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email'**
+  String get authInvalidEmail;
+
+  /// No description provided for @authPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPassword;
+
+  /// No description provided for @authEnterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get authEnterPassword;
+
+  /// No description provided for @authPasswordMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get authPasswordMin;
+
+  /// No description provided for @authAccountCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created. Check your email to confirm it, then sign in.'**
+  String get authAccountCreated;
+
+  /// No description provided for @authGenericError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get authGenericError;
+
+  /// No description provided for @txTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get txTitle;
+
+  /// No description provided for @txLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load transactions'**
+  String get txLoadError;
+
+  /// No description provided for @txAtPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'at {price}'**
+  String txAtPrice(String price);
+
+  /// No description provided for @txEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions'**
+  String get txEmpty;
+
+  /// No description provided for @txEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an asset and a purchase entry will appear here.'**
+  String get txEmptyHint;
 }
 
 class _AppLocalizationsDelegate

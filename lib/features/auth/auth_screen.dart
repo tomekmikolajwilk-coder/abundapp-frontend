@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Ekran logowania / rejestracji (email + hasło).
 ///
@@ -52,8 +53,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         // logowanie nastąpi dopiero po kliknięciu linku z wiadomości.
         if (res.session == null && mounted) {
           setState(() {
-            _info = 'Konto utworzone. Sprawdź email, aby je potwierdzić, '
-                'a potem zaloguj się.';
+            _info = AppLocalizations.of(context).authAccountCreated;
             _isRegister = false;
           });
         }
@@ -65,7 +65,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       if (mounted) setState(() => _error = e.message);
     } catch (_) {
       if (mounted) {
-        setState(() => _error = 'Coś poszło nie tak. Spróbuj ponownie.');
+        setState(() => _error = AppLocalizations.of(context).authGenericError);
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -83,8 +83,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final title = _isRegister ? 'Załóż konto' : 'Zaloguj się';
-    final cta = _isRegister ? 'Zarejestruj' : 'Zaloguj';
+    final l = AppLocalizations.of(context);
+    final title = _isRegister ? l.authSignUpTitle : l.authSignInTitle;
+    final cta = _isRegister ? l.authSignUp : l.authSignIn;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -103,7 +104,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     Text('Abundapp', style: theme.textTheme.displayLarge),
                     const SizedBox(height: 8),
                     Text(
-                      'Twój majątek w jednym miejscu.',
+                      l.authTagline,
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 40),
@@ -153,8 +154,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       onPressed: _loading ? null : _toggleMode,
                       child: Text(
                         _isRegister
-                            ? 'Masz już konto? Zaloguj się'
-                            : 'Nie masz konta? Zarejestruj się',
+                            ? l.authToggleToSignIn
+                            : l.authToggleToSignUp,
                         style: const TextStyle(color: AppColors.textSecondary),
                       ),
                     ),
@@ -181,12 +182,14 @@ class _EmailField extends StatelessWidget {
       autocorrect: false,
       autofillHints: const [AutofillHints.email],
       style: const TextStyle(color: AppColors.textPrimary),
-      decoration: _inputDecoration('Email', Icons.alternate_email),
+      decoration:
+          _inputDecoration(AppLocalizations.of(context).authEmail, Icons.alternate_email),
       validator: (v) {
+        final l = AppLocalizations.of(context);
         final value = v?.trim() ?? '';
-        if (value.isEmpty) return 'Podaj email';
+        if (value.isEmpty) return l.authEnterEmail;
         if (!value.contains('@') || !value.contains('.')) {
-          return 'Nieprawidłowy email';
+          return l.authInvalidEmail;
         }
         return null;
       },
@@ -205,10 +208,12 @@ class _PasswordField extends StatelessWidget {
       obscureText: true,
       autofillHints: const [AutofillHints.password],
       style: const TextStyle(color: AppColors.textPrimary),
-      decoration: _inputDecoration('Hasło', Icons.lock_outline),
+      decoration:
+          _inputDecoration(AppLocalizations.of(context).authPassword, Icons.lock_outline),
       validator: (v) {
-        if (v == null || v.isEmpty) return 'Podaj hasło';
-        if (v.length < 6) return 'Hasło min. 6 znaków';
+        final l = AppLocalizations.of(context);
+        if (v == null || v.isEmpty) return l.authEnterPassword;
+        if (v.length < 6) return l.authPasswordMin;
         return null;
       },
     );

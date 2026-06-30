@@ -215,4 +215,67 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chooseAsset => 'Wybierz aktywo';
+
+  @override
+  String get authTagline => 'Twój majątek w jednym miejscu.';
+
+  @override
+  String get authSignInTitle => 'Zaloguj się';
+
+  @override
+  String get authSignUpTitle => 'Załóż konto';
+
+  @override
+  String get authSignIn => 'Zaloguj';
+
+  @override
+  String get authSignUp => 'Zarejestruj';
+
+  @override
+  String get authToggleToSignIn => 'Masz już konto? Zaloguj się';
+
+  @override
+  String get authToggleToSignUp => 'Nie masz konta? Zarejestruj się';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authEnterEmail => 'Podaj email';
+
+  @override
+  String get authInvalidEmail => 'Nieprawidłowy email';
+
+  @override
+  String get authPassword => 'Hasło';
+
+  @override
+  String get authEnterPassword => 'Podaj hasło';
+
+  @override
+  String get authPasswordMin => 'Hasło min. 6 znaków';
+
+  @override
+  String get authAccountCreated =>
+      'Konto utworzone. Sprawdź email, aby je potwierdzić, a potem zaloguj się.';
+
+  @override
+  String get authGenericError => 'Coś poszło nie tak. Spróbuj ponownie.';
+
+  @override
+  String get txTitle => 'Transakcje';
+
+  @override
+  String get txLoadError => 'Nie udało się pobrać transakcji';
+
+  @override
+  String txAtPrice(String price) {
+    return 'po $price';
+  }
+
+  @override
+  String get txEmpty => 'Brak transakcji';
+
+  @override
+  String get txEmptyHint => 'Dodaj aktywo, a pojawi się tu wpis kupna.';
 }

@@ -215,4 +215,70 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get chooseAsset => 'Choisir un actif';
+
+  @override
+  String get authTagline => 'Votre patrimoine en un seul endroit.';
+
+  @override
+  String get authSignInTitle => 'Se connecter';
+
+  @override
+  String get authSignUpTitle => 'Créer un compte';
+
+  @override
+  String get authSignIn => 'Se connecter';
+
+  @override
+  String get authSignUp => 'S\'inscrire';
+
+  @override
+  String get authToggleToSignIn => 'Déjà un compte ? Se connecter';
+
+  @override
+  String get authToggleToSignUp => 'Pas de compte ? S\'inscrire';
+
+  @override
+  String get authEmail => 'E-mail';
+
+  @override
+  String get authEnterEmail => 'Saisissez votre e-mail';
+
+  @override
+  String get authInvalidEmail => 'E-mail invalide';
+
+  @override
+  String get authPassword => 'Mot de passe';
+
+  @override
+  String get authEnterPassword => 'Saisissez votre mot de passe';
+
+  @override
+  String get authPasswordMin =>
+      'Le mot de passe doit comporter au moins 6 caractères';
+
+  @override
+  String get authAccountCreated =>
+      'Compte créé. Vérifiez votre e-mail pour le confirmer, puis connectez-vous.';
+
+  @override
+  String get authGenericError =>
+      'Une erreur s\'est produite. Veuillez réessayer.';
+
+  @override
+  String get txTitle => 'Transactions';
+
+  @override
+  String get txLoadError => 'Impossible de charger les transactions';
+
+  @override
+  String txAtPrice(String price) {
+    return 'à $price';
+  }
+
+  @override
+  String get txEmpty => 'Aucune transaction';
+
+  @override
+  String get txEmptyHint =>
+      'Ajoutez un actif et une entrée d\'achat apparaîtra ici.';
 }

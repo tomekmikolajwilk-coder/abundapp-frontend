@@ -215,4 +215,69 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get chooseAsset => 'Elegir activo';
+
+  @override
+  String get authTagline => 'Tu patrimonio en un solo lugar.';
+
+  @override
+  String get authSignInTitle => 'Iniciar sesión';
+
+  @override
+  String get authSignUpTitle => 'Crear cuenta';
+
+  @override
+  String get authSignIn => 'Iniciar sesión';
+
+  @override
+  String get authSignUp => 'Registrarse';
+
+  @override
+  String get authToggleToSignIn => '¿Ya tienes cuenta? Inicia sesión';
+
+  @override
+  String get authToggleToSignUp => '¿No tienes cuenta? Regístrate';
+
+  @override
+  String get authEmail => 'Correo';
+
+  @override
+  String get authEnterEmail => 'Introduce tu correo';
+
+  @override
+  String get authInvalidEmail => 'Correo no válido';
+
+  @override
+  String get authPassword => 'Contraseña';
+
+  @override
+  String get authEnterPassword => 'Introduce tu contraseña';
+
+  @override
+  String get authPasswordMin =>
+      'La contraseña debe tener al menos 6 caracteres';
+
+  @override
+  String get authAccountCreated =>
+      'Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.';
+
+  @override
+  String get authGenericError => 'Algo salió mal. Inténtalo de nuevo.';
+
+  @override
+  String get txTitle => 'Transacciones';
+
+  @override
+  String get txLoadError => 'No se pudieron cargar las transacciones';
+
+  @override
+  String txAtPrice(String price) {
+    return 'a $price';
+  }
+
+  @override
+  String get txEmpty => 'Sin transacciones';
+
+  @override
+  String get txEmptyHint =>
+      'Añade un activo y aquí aparecerá una entrada de compra.';
 }

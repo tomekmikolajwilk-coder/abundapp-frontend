@@ -4,6 +4,7 @@ import '../../core/models/transaction.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/asset_avatar.dart';
 
 /// Read-only ledger transakcji — lista zapisanych kupna/sprzedaży (cena + data).
@@ -25,16 +26,16 @@ class TransactionsScreen extends ConsumerWidget {
           color: AppColors.textPrimary,
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Transakcje',
-            style: TextStyle(
+        title: Text(AppLocalizations.of(context).txTitle,
+            style: const TextStyle(
                 color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
       ),
       body: SafeArea(
         child: txAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => const Center(
-              child: Text('Nie udało się pobrać transakcji',
-                  style: TextStyle(color: AppColors.textSecondary))),
+          error: (_, _) => Center(
+              child: Text(AppLocalizations.of(context).txLoadError,
+                  style: const TextStyle(color: AppColors.textSecondary))),
           data: (txs) => txs.isEmpty
               ? const _Empty()
               : ListView.separated(
@@ -97,7 +98,7 @@ class _TxRow extends StatelessWidget {
                     color: color, fontSize: 15, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 2),
-              Text('po ${moneyCcy(unitPrice, currency)}',
+              Text(AppLocalizations.of(context).txAtPrice(moneyCcy(unitPrice, currency)),
                   style: const TextStyle(
                       color: AppColors.textSecondary, fontSize: 12)),
             ],
@@ -112,24 +113,26 @@ class _Empty extends StatelessWidget {
   const _Empty();
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l = AppLocalizations.of(context);
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.receipt_long_outlined,
+            const Icon(Icons.receipt_long_outlined,
                 size: 40, color: AppColors.textSecondary),
-            SizedBox(height: 16),
-            Text('Brak transakcji',
-                style: TextStyle(
+            const SizedBox(height: 16),
+            Text(l.txEmpty,
+                style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600)),
-            SizedBox(height: 6),
-            Text('Dodaj aktywo, a pojawi się tu wpis kupna.',
+            const SizedBox(height: 6),
+            Text(l.txEmptyHint,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 13)),
           ],
         ),
       ),
