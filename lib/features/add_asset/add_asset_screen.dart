@@ -134,20 +134,21 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
   // --- Krok 1: wybór kategorii ---
 
   Widget _categoryStep() {
+    final l = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        const _SectionLabel('Aktywa rynkowe'),
+        _SectionLabel(l.addSectionMarket),
         const SizedBox(height: 4),
-        const Text('Cenę zna aplikacja — podajesz tylko ilość.',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+        Text(l.addSectionMarketHint,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
         const SizedBox(height: 12),
         ..._marketCategories.map(_categoryTile),
         const SizedBox(height: 28),
-        const _SectionLabel('Wartość wpisujesz sam'),
+        _SectionLabel(l.addSectionManual),
         const SizedBox(height: 4),
-        const Text('Nieruchomości, kosztowności i inne — podajesz wycenę.',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+        Text(l.addSectionManualHint,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
         const SizedBox(height: 12),
         ..._manualCategories.map(_categoryTile),
       ],
@@ -213,8 +214,9 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
   }
 
   List<Widget> _marketFields(_CategoryOption cat) {
+    final l = AppLocalizations.of(context);
     return [
-      const _FieldLabel('Aktywo'),
+      _FieldLabel(l.fieldAsset),
       const SizedBox(height: 8),
       _AssetPickerField(
         category: cat.id,
@@ -222,12 +224,12 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
         onTap: () => _openAssetPicker(cat.id),
       ),
       const SizedBox(height: 20),
-      const _FieldLabel('Ile posiadasz'),
+      _FieldLabel(l.fieldAmountOwned),
       const SizedBox(height: 8),
       _NumberField(controller: _amountCtrl, hint: 'np. 0,5'),
       if (cat.id == 'etf') ...[
         const SizedBox(height: 20),
-        const _FieldLabel('Pokaż w kategorii (opcjonalnie)'),
+        _FieldLabel(l.showInCategory),
         const SizedBox(height: 4),
         const Text(
           'Np. ETF na obligacje możesz pokazać w „Obligacje" zamiast „ETF-y".',
@@ -238,25 +240,26 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
           value: _displayCategory,
           onChanged: (v) => setState(() => _displayCategory = v),
           targets: _etfDisplayTargets,
-          noneLabel: 'ETF-y',
+          noneLabel: AppLocalizations.of(context).categoryEtf,
         ),
       ],
     ];
   }
 
   List<Widget> _manualFields(_CategoryOption cat) {
+    final l = AppLocalizations.of(context);
     return [
-      const _FieldLabel('Nazwa'),
+      _FieldLabel(l.fieldName),
       const SizedBox(height: 8),
       _TextField(controller: _nameCtrl, hint: '', maxLength: 24),
       const SizedBox(height: 20),
-      const _FieldLabel('Ilość'),
+      _FieldLabel(l.fieldQuantity),
       const SizedBox(height: 8),
       _NumberField(controller: _amountCtrl, hint: 'np. 1'),
       const SizedBox(height: 20),
       Row(
         children: [
-          const _FieldLabel('Wartość jednostki'),
+          _FieldLabel(l.fieldUnitValue),
           const Spacer(),
           _CurrencySelector(
             options: currencyValueOptions(_preferred),
@@ -274,16 +277,16 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
         const SizedBox(height: 20),
         const _RateLabelWithInfo(),
         const SizedBox(height: 4),
-        const Text(
-          'Wartość rośnie o tyle rocznie — naliczane codziennie.',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        Text(
+          l.bondGrowthHint,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
         const SizedBox(height: 8),
         _NumberField(controller: _rateCtrl, hint: 'np. 5'),
       ],
       if (cat.id == 'other') ...[
         const SizedBox(height: 20),
-        const _FieldLabel('Pokaż w kategorii (opcjonalnie)'),
+        _FieldLabel(l.showInCategory),
         const SizedBox(height: 4),
         const Text(
           'Aktywo, którego nie ma na listach (np. akcja spoza obsługiwanych) '
@@ -295,7 +298,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
           value: _displayCategory,
           onChanged: (v) => setState(() => _displayCategory = v),
           targets: _otherDisplayTargets,
-          noneLabel: 'Inne',
+          noneLabel: AppLocalizations.of(context).categoryOther,
         ),
       ],
     ];
@@ -338,6 +341,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
   // --- Zatwierdzenie ---
 
   Future<void> _submit(_CategoryOption cat) async {
+    final l = AppLocalizations.of(context);
     // Składamy body wg kontraktu; wartość manualną wysyłamy SUROWĄ + walutę,
     // przeliczenie robi backend (trzyma unit_value natywnie w currency).
     final Map<String, dynamic> body;
@@ -345,13 +349,13 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
       final name = _nameCtrl.text.trim();
       final amount = parseAmount(_amountCtrl.text);
       final value = parseAmount(_valueCtrl.text);
-      if (name.isEmpty) return _fail('Podaj nazwę aktywa.');
-      if (amount == null || amount <= 0) return _fail('Podaj poprawną ilość.');
-      if (value == null || value <= 0) return _fail('Podaj wartość jednostki.');
+      if (name.isEmpty) return _fail(l.errEnterName);
+      if (amount == null || amount <= 0) return _fail(l.errEnterAmount);
+      if (value == null || value <= 0) return _fail(l.errEnterUnitValue);
       double? rate;
       if (cat.id == 'bonds' && _rateCtrl.text.trim().isNotEmpty) {
         rate = parseAmount(_rateCtrl.text);
-        if (rate == null || rate < 0) return _fail('Niepoprawne oprocentowanie.');
+        if (rate == null || rate < 0) return _fail(l.errInvalidRate);
       }
       body = {
         'category': cat.id,
@@ -368,8 +372,8 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
     } else {
       final asset = _asset;
       final amount = parseAmount(_amountCtrl.text);
-      if (asset == null) return _fail('Wybierz aktywo.');
-      if (amount == null || amount <= 0) return _fail('Podaj poprawną ilość.');
+      if (asset == null) return _fail(l.errSelectAsset);
+      if (amount == null || amount <= 0) return _fail(l.errEnterAmount);
       body = {
         'category': cat.id,
         'asset_id': asset.assetId,
@@ -410,17 +414,17 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
   }
 
   String _cleanError(Object e) {
+    final l = AppLocalizations.of(context);
     // 503 = przejściowa czkawka źródła ceny (np. TD chwilowo nie odpowiedział).
     // To NIE trwały brak — user może po prostu spróbować ponownie (przycisk „Dodaj").
     if (e is ApiException && e.statusCode == 503) {
-      return 'Chwilowy problem z pobraniem kursu. Spróbuj ponownie za chwilę.';
+      return l.errPriceTransient;
     }
     final msg = e.toString().replaceFirst('Exception: ', '');
     // Add-time guard (Faza 3): źródło ceny TRWALE nie ma notowań dla aktywa (400).
     // Pokazujemy przyjazny komunikat z furtką „Inne".
     if (msg.contains('Brak notowań')) {
-      return 'Nie umiemy teraz wycenić tego aktywa. Wybierz inne albo dodaj je '
-          'w kategorii „Inne" z ręcznie ustawioną wartością.';
+      return l.errPriceUnavailable;
     }
     return msg;
   }
@@ -439,7 +443,7 @@ class _RateLabelWithInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const _FieldLabel('Oprocentowanie roczne (%)'),
+        _FieldLabel(AppLocalizations.of(context).bondRateLabel),
         const SizedBox(width: 6),
         InkWell(
           onTap: () => _showInfo(context),
@@ -457,20 +461,19 @@ class _RateLabelWithInfo extends StatelessWidget {
   void _showInfo(BuildContext context) {
     showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         backgroundColor: AppColors.surfaceElevated,
-        title: const Text('Jak działa naliczanie',
-            style: TextStyle(color: AppColors.textPrimary, fontSize: 16)),
-        content: const Text(
-          'Wartość obligacji rośnie codziennie o oprocentowanie podzielone na '
-          '365 dni. Przy 5% rocznie i wartości 100 — po roku masz ok. 105. '
-          'Aplikacja przelicza to raz dziennie po stronie serwera.',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        title: Text(AppLocalizations.of(dialogCtx).bondInfoTitle,
+            style: const TextStyle(color: AppColors.textPrimary, fontSize: 16)),
+        content: Text(
+          AppLocalizations.of(dialogCtx).bondInfoText,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK', style: TextStyle(color: AppColors.accent)),
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: Text(AppLocalizations.of(dialogCtx).ok,
+                style: const TextStyle(color: AppColors.accent)),
           ),
         ],
       ),
@@ -651,8 +654,8 @@ class _AssetPickerField extends StatelessWidget {
                 ),
               ),
             ] else
-              const Text('Wybierz z listy',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+              Text(AppLocalizations.of(context).pickFromList,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 15)),
             const Spacer(),
             const Icon(Icons.keyboard_arrow_down,
                 color: AppColors.textSecondary, size: 20),
@@ -739,8 +742,8 @@ class _SubmitBar extends StatelessWidget {
                   child: CircularProgressIndicator(
                       strokeWidth: 2, color: Colors.white),
                 )
-              : const Text('Dodaj',
-                  style: TextStyle(
+              : Text(AppLocalizations.of(context).add,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600)),
@@ -796,7 +799,7 @@ class _AssetPickerSheetState extends ConsumerState<_AssetPickerSheet> {
                 autofocus: true,
                 onChanged: (v) => setState(() => _query = v.trim().toUpperCase()),
                 style: const TextStyle(color: AppColors.textPrimary),
-                decoration: _inputDecoration('Szukaj…').copyWith(
+                decoration: _inputDecoration(AppLocalizations.of(context).search).copyWith(
                   prefixIcon: const Icon(Icons.search,
                       color: AppColors.textSecondary, size: 20),
                   fillColor: AppColors.surfaceElevated,
@@ -807,9 +810,9 @@ class _AssetPickerSheetState extends ConsumerState<_AssetPickerSheet> {
               child: assetsAsync.when(
                 loading: () =>
                     const Center(child: CircularProgressIndicator()),
-                error: (_, _) => const Center(
-                    child: Text('Nie udało się pobrać aktywów',
-                        style: TextStyle(color: AppColors.textSecondary))),
+                error: (_, _) => Center(
+                    child: Text(AppLocalizations.of(context).errLoadAssets,
+                        style: const TextStyle(color: AppColors.textSecondary))),
                 data: (byCategory) {
                   final all = byCategory[widget.category] ?? const [];
                   final list = _query.isEmpty
@@ -820,10 +823,10 @@ class _AssetPickerSheetState extends ConsumerState<_AssetPickerSheet> {
                               a.label.toUpperCase().contains(_query))
                           .toList();
                   if (list.isEmpty) {
-                    return const Center(
-                        child: Text('Brak wyników',
-                            style:
-                                TextStyle(color: AppColors.textSecondary)));
+                    return Center(
+                        child: Text(AppLocalizations.of(context).noResults,
+                            style: const TextStyle(
+                                color: AppColors.textSecondary)));
                   }
                   return ListView.builder(
                     controller: scrollController,
@@ -993,7 +996,7 @@ class _AssetSearchSheetState extends State<_AssetSearchSheet> {
                 autofocus: true,
                 onChanged: _onChanged,
                 style: const TextStyle(color: AppColors.textPrimary),
-                decoration: _inputDecoration('Szukaj po nazwie lub tickerze…')
+                decoration: _inputDecoration(AppLocalizations.of(context).searchByNameOrTicker)
                     .copyWith(
                   prefixIcon: const Icon(Icons.search,
                       color: AppColors.textSecondary, size: 20),
@@ -1013,17 +1016,18 @@ class _AssetSearchSheetState extends State<_AssetSearchSheet> {
   }
 
   Widget _body(ScrollController scrollController) {
+    final l = AppLocalizations.of(context);
     if (_query.length < _minChars) {
-      return const _CenteredHint('Wpisz co najmniej 2 znaki, aby wyszukać.');
+      return _CenteredHint(l.minTwoChars);
     }
     if (_loading && _results.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
     if (_error != null && _results.isEmpty) {
-      return const _CenteredHint('Nie udało się wyszukać. Spróbuj ponownie.');
+      return _CenteredHint(l.errLoadAssets);
     }
     if (_results.isEmpty) {
-      return const _CenteredHint('Brak wyników.');
+      return _CenteredHint(l.noResults);
     }
     return NotificationListener<ScrollNotification>(
       onNotification: _onScrollNotification,
@@ -1113,22 +1117,22 @@ class _PickerFooterHint extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: RichText(
-                  text: const TextSpan(
-                    style: TextStyle(fontSize: 13, height: 1.3),
+                  text: TextSpan(
+                    style: const TextStyle(fontSize: 13, height: 1.3),
                     children: [
                       TextSpan(
-                        text: 'Nie ma Twojego aktywa? ',
-                        style: TextStyle(color: AppColors.textSecondary),
+                        text: AppLocalizations.of(context).assetNotListedQuestion,
+                        style: const TextStyle(color: AppColors.textSecondary),
                       ),
                       TextSpan(
-                        text: 'Dodaj je w kategorii Inne',
-                        style: TextStyle(
+                        text: AppLocalizations.of(context).addInOtherCategory,
+                        style: const TextStyle(
                             color: AppColors.accent,
                             fontWeight: FontWeight.w600),
                       ),
                       TextSpan(
-                        text: ' i ustaw wartość ręcznie.',
-                        style: TextStyle(color: AppColors.textSecondary),
+                        text: AppLocalizations.of(context).andSetValueManually,
+                        style: const TextStyle(color: AppColors.textSecondary),
                       ),
                     ],
                   ),

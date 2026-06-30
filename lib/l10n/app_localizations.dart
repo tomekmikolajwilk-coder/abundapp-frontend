@@ -307,6 +307,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other'**
   String get categoryOther;
+
+  /// No description provided for @addSectionMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Market assets'**
+  String get addSectionMarket;
+
+  /// No description provided for @addSectionMarketHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The app knows the price — you only enter the amount.'**
+  String get addSectionMarketHint;
+
+  /// No description provided for @addSectionManual.
+  ///
+  /// In en, this message translates to:
+  /// **'You set the value'**
+  String get addSectionManual;
+
+  /// No description provided for @addSectionManualHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Real estate, valuables and more — you provide the valuation.'**
+  String get addSectionManualHint;
+
+  /// No description provided for @fieldAsset.
+  ///
+  /// In en, this message translates to:
+  /// **'Asset'**
+  String get fieldAsset;
+
+  /// No description provided for @fieldAmountOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'How much you own'**
+  String get fieldAmountOwned;
+
+  /// No description provided for @showInCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Show in category (optional)'**
+  String get showInCategory;
+
+  /// No description provided for @fieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get fieldName;
+
+  /// No description provided for @fieldQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get fieldQuantity;
+
+  /// No description provided for @fieldUnitValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit value'**
+  String get fieldUnitValue;
+
+  /// No description provided for @bondGrowthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The value grows by this much per year — accrued daily.'**
+  String get bondGrowthHint;
+
+  /// No description provided for @bondRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual interest rate (%)'**
+  String get bondRateLabel;
+
+  /// No description provided for @bondInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How accrual works'**
+  String get bondInfoTitle;
+
+  /// No description provided for @bondInfoText.
+  ///
+  /// In en, this message translates to:
+  /// **'A bond\'s value grows daily by the interest rate divided by 365 days. At 5% per year and a value of 100, after a year you have about 105. The app recalculates this once a day on the server.'**
+  String get bondInfoText;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @errEnterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the asset name.'**
+  String get errEnterName;
+
+  /// No description provided for @errEnterAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount.'**
+  String get errEnterAmount;
+
+  /// No description provided for @errEnterUnitValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the unit value.'**
+  String get errEnterUnitValue;
+
+  /// No description provided for @errInvalidRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid interest rate.'**
+  String get errInvalidRate;
+
+  /// No description provided for @errSelectAsset.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an asset.'**
+  String get errSelectAsset;
+
+  /// No description provided for @errPriceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'We can\'t price this asset right now. Pick another, or add it under \"Other\" with a manually set value.'**
+  String get errPriceUnavailable;
+
+  /// No description provided for @errPriceTransient.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t fetch the price right now. Please try again in a moment.'**
+  String get errPriceTransient;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search…'**
+  String get search;
+
+  /// No description provided for @searchByNameOrTicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or ticker…'**
+  String get searchByNameOrTicker;
+
+  /// No description provided for @minTwoChars.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least 2 characters to search.'**
+  String get minTwoChars;
+
+  /// No description provided for @noResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results.'**
+  String get noResults;
+
+  /// No description provided for @errLoadAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load assets'**
+  String get errLoadAssets;
+
+  /// No description provided for @assetNotListedQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t find your asset? '**
+  String get assetNotListedQuestion;
+
+  /// No description provided for @addInOtherCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add it under Other'**
+  String get addInOtherCategory;
+
+  /// No description provided for @andSetValueManually.
+  ///
+  /// In en, this message translates to:
+  /// **' and set the value manually.'**
+  String get andSetValueManually;
+
+  /// No description provided for @pickFromList.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick from list'**
+  String get pickFromList;
+
+  /// No description provided for @chooseAsset.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose asset'**
+  String get chooseAsset;
 }
 
 class _AppLocalizationsDelegate

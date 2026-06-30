@@ -113,4 +113,106 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get categoryOther => 'Autre';
+
+  @override
+  String get addSectionMarket => 'Actifs de marché';
+
+  @override
+  String get addSectionMarketHint =>
+      'L\'app connaît le prix — vous saisissez seulement la quantité.';
+
+  @override
+  String get addSectionManual => 'Vous saisissez la valeur';
+
+  @override
+  String get addSectionManualHint =>
+      'Immobilier, objets de valeur et plus — vous fournissez l\'estimation.';
+
+  @override
+  String get fieldAsset => 'Actif';
+
+  @override
+  String get fieldAmountOwned => 'Quantité détenue';
+
+  @override
+  String get showInCategory => 'Afficher dans la catégorie (facultatif)';
+
+  @override
+  String get fieldName => 'Nom';
+
+  @override
+  String get fieldQuantity => 'Quantité';
+
+  @override
+  String get fieldUnitValue => 'Valeur unitaire';
+
+  @override
+  String get bondGrowthHint =>
+      'La valeur augmente de ce montant par an — calculé chaque jour.';
+
+  @override
+  String get bondRateLabel => 'Taux d\'intérêt annuel (%)';
+
+  @override
+  String get bondInfoTitle => 'Comment fonctionne le calcul';
+
+  @override
+  String get bondInfoText =>
+      'La valeur d\'une obligation augmente chaque jour du taux d\'intérêt divisé par 365 jours. À 5% par an et une valeur de 100, après un an vous avez environ 105. L\'app recalcule cela une fois par jour côté serveur.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get errEnterName => 'Saisissez le nom de l\'actif.';
+
+  @override
+  String get errEnterAmount => 'Saisissez une quantité valide.';
+
+  @override
+  String get errEnterUnitValue => 'Saisissez la valeur unitaire.';
+
+  @override
+  String get errInvalidRate => 'Taux d\'intérêt invalide.';
+
+  @override
+  String get errSelectAsset => 'Sélectionnez un actif.';
+
+  @override
+  String get errPriceUnavailable =>
+      'Nous ne pouvons pas évaluer cet actif pour le moment. Choisissez-en un autre ou ajoutez-le sous « Autre » avec une valeur définie manuellement.';
+
+  @override
+  String get errPriceTransient =>
+      'Impossible de récupérer le prix pour le moment. Réessayez dans un instant.';
+
+  @override
+  String get search => 'Rechercher…';
+
+  @override
+  String get searchByNameOrTicker => 'Rechercher par nom ou symbole…';
+
+  @override
+  String get minTwoChars => 'Saisissez au moins 2 caractères pour rechercher.';
+
+  @override
+  String get noResults => 'Aucun résultat.';
+
+  @override
+  String get errLoadAssets => 'Impossible de charger les actifs';
+
+  @override
+  String get assetNotListedQuestion => 'Vous ne trouvez pas votre actif ? ';
+
+  @override
+  String get addInOtherCategory => 'Ajoutez-le sous Autre';
+
+  @override
+  String get andSetValueManually => ' et définissez la valeur manuellement.';
+
+  @override
+  String get pickFromList => 'Choisir dans la liste';
+
+  @override
+  String get chooseAsset => 'Choisir un actif';
 }

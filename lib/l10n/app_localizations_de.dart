@@ -113,4 +113,106 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get categoryOther => 'Sonstiges';
+
+  @override
+  String get addSectionMarket => 'Markt-Anlagen';
+
+  @override
+  String get addSectionMarketHint =>
+      'Den Preis kennt die App — du gibst nur die Menge an.';
+
+  @override
+  String get addSectionManual => 'Wert selbst eingeben';
+
+  @override
+  String get addSectionManualHint =>
+      'Immobilien, Wertgegenstände und mehr — du gibst die Bewertung an.';
+
+  @override
+  String get fieldAsset => 'Anlage';
+
+  @override
+  String get fieldAmountOwned => 'Wie viel du besitzt';
+
+  @override
+  String get showInCategory => 'In Kategorie anzeigen (optional)';
+
+  @override
+  String get fieldName => 'Name';
+
+  @override
+  String get fieldQuantity => 'Menge';
+
+  @override
+  String get fieldUnitValue => 'Stückwert';
+
+  @override
+  String get bondGrowthHint =>
+      'Der Wert wächst jährlich um diesen Betrag — täglich verzinst.';
+
+  @override
+  String get bondRateLabel => 'Jährlicher Zinssatz (%)';
+
+  @override
+  String get bondInfoTitle => 'So funktioniert die Verzinsung';
+
+  @override
+  String get bondInfoText =>
+      'Der Wert einer Anleihe wächst täglich um den Zinssatz geteilt durch 365 Tage. Bei 5% pro Jahr und einem Wert von 100 hast du nach einem Jahr etwa 105. Die App berechnet dies einmal täglich auf dem Server.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get errEnterName => 'Gib den Namen der Anlage ein.';
+
+  @override
+  String get errEnterAmount => 'Gib eine gültige Menge ein.';
+
+  @override
+  String get errEnterUnitValue => 'Gib den Stückwert ein.';
+
+  @override
+  String get errInvalidRate => 'Ungültiger Zinssatz.';
+
+  @override
+  String get errSelectAsset => 'Wähle eine Anlage.';
+
+  @override
+  String get errPriceUnavailable =>
+      'Wir können diese Anlage gerade nicht bewerten. Wähle eine andere oder füge sie unter „Sonstiges“ mit manuell gesetztem Wert hinzu.';
+
+  @override
+  String get errPriceTransient =>
+      'Kurs konnte gerade nicht abgerufen werden. Bitte versuche es gleich noch einmal.';
+
+  @override
+  String get search => 'Suchen…';
+
+  @override
+  String get searchByNameOrTicker => 'Nach Name oder Ticker suchen…';
+
+  @override
+  String get minTwoChars => 'Gib mindestens 2 Zeichen ein, um zu suchen.';
+
+  @override
+  String get noResults => 'Keine Ergebnisse.';
+
+  @override
+  String get errLoadAssets => 'Anlagen konnten nicht geladen werden';
+
+  @override
+  String get assetNotListedQuestion => 'Anlage nicht gefunden? ';
+
+  @override
+  String get addInOtherCategory => 'Unter Sonstiges hinzufügen';
+
+  @override
+  String get andSetValueManually => ' und den Wert manuell setzen.';
+
+  @override
+  String get pickFromList => 'Aus Liste wählen';
+
+  @override
+  String get chooseAsset => 'Anlage wählen';
 }

@@ -113,4 +113,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryOther => 'Other';
+
+  @override
+  String get addSectionMarket => 'Market assets';
+
+  @override
+  String get addSectionMarketHint =>
+      'The app knows the price — you only enter the amount.';
+
+  @override
+  String get addSectionManual => 'You set the value';
+
+  @override
+  String get addSectionManualHint =>
+      'Real estate, valuables and more — you provide the valuation.';
+
+  @override
+  String get fieldAsset => 'Asset';
+
+  @override
+  String get fieldAmountOwned => 'How much you own';
+
+  @override
+  String get showInCategory => 'Show in category (optional)';
+
+  @override
+  String get fieldName => 'Name';
+
+  @override
+  String get fieldQuantity => 'Quantity';
+
+  @override
+  String get fieldUnitValue => 'Unit value';
+
+  @override
+  String get bondGrowthHint =>
+      'The value grows by this much per year — accrued daily.';
+
+  @override
+  String get bondRateLabel => 'Annual interest rate (%)';
+
+  @override
+  String get bondInfoTitle => 'How accrual works';
+
+  @override
+  String get bondInfoText =>
+      'A bond\'s value grows daily by the interest rate divided by 365 days. At 5% per year and a value of 100, after a year you have about 105. The app recalculates this once a day on the server.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get errEnterName => 'Enter the asset name.';
+
+  @override
+  String get errEnterAmount => 'Enter a valid amount.';
+
+  @override
+  String get errEnterUnitValue => 'Enter the unit value.';
+
+  @override
+  String get errInvalidRate => 'Invalid interest rate.';
+
+  @override
+  String get errSelectAsset => 'Select an asset.';
+
+  @override
+  String get errPriceUnavailable =>
+      'We can\'t price this asset right now. Pick another, or add it under \"Other\" with a manually set value.';
+
+  @override
+  String get errPriceTransient =>
+      'Couldn\'t fetch the price right now. Please try again in a moment.';
+
+  @override
+  String get search => 'Search…';
+
+  @override
+  String get searchByNameOrTicker => 'Search by name or ticker…';
+
+  @override
+  String get minTwoChars => 'Type at least 2 characters to search.';
+
+  @override
+  String get noResults => 'No results.';
+
+  @override
+  String get errLoadAssets => 'Couldn\'t load assets';
+
+  @override
+  String get assetNotListedQuestion => 'Can\'t find your asset? ';
+
+  @override
+  String get addInOtherCategory => 'Add it under Other';
+
+  @override
+  String get andSetValueManually => ' and set the value manually.';
+
+  @override
+  String get pickFromList => 'Pick from list';
+
+  @override
+  String get chooseAsset => 'Choose asset';
 }

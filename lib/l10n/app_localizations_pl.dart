@@ -113,4 +113,106 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get categoryOther => 'Inne';
+
+  @override
+  String get addSectionMarket => 'Aktywa rynkowe';
+
+  @override
+  String get addSectionMarketHint =>
+      'Cenę zna aplikacja — podajesz tylko ilość.';
+
+  @override
+  String get addSectionManual => 'Wartość wpisujesz sam';
+
+  @override
+  String get addSectionManualHint =>
+      'Nieruchomości, kosztowności i inne — podajesz wycenę.';
+
+  @override
+  String get fieldAsset => 'Aktywo';
+
+  @override
+  String get fieldAmountOwned => 'Ile posiadasz';
+
+  @override
+  String get showInCategory => 'Pokaż w kategorii (opcjonalnie)';
+
+  @override
+  String get fieldName => 'Nazwa';
+
+  @override
+  String get fieldQuantity => 'Ilość';
+
+  @override
+  String get fieldUnitValue => 'Wartość jednostki';
+
+  @override
+  String get bondGrowthHint =>
+      'Wartość rośnie o tyle rocznie — naliczane codziennie.';
+
+  @override
+  String get bondRateLabel => 'Oprocentowanie roczne (%)';
+
+  @override
+  String get bondInfoTitle => 'Jak działa naliczanie';
+
+  @override
+  String get bondInfoText =>
+      'Wartość obligacji rośnie codziennie o oprocentowanie podzielone na 365 dni. Przy 5% rocznie i wartości 100 — po roku masz ok. 105. Aplikacja przelicza to raz dziennie po stronie serwera.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get errEnterName => 'Podaj nazwę aktywa.';
+
+  @override
+  String get errEnterAmount => 'Podaj poprawną ilość.';
+
+  @override
+  String get errEnterUnitValue => 'Podaj wartość jednostki.';
+
+  @override
+  String get errInvalidRate => 'Niepoprawne oprocentowanie.';
+
+  @override
+  String get errSelectAsset => 'Wybierz aktywo.';
+
+  @override
+  String get errPriceUnavailable =>
+      'Nie umiemy teraz wycenić tego aktywa. Wybierz inne albo dodaj je w kategorii „Inne\" z ręcznie ustawioną wartością.';
+
+  @override
+  String get errPriceTransient =>
+      'Chwilowy problem z pobraniem kursu. Spróbuj ponownie za chwilę.';
+
+  @override
+  String get search => 'Szukaj…';
+
+  @override
+  String get searchByNameOrTicker => 'Szukaj po nazwie lub tickerze…';
+
+  @override
+  String get minTwoChars => 'Wpisz co najmniej 2 znaki, aby wyszukać.';
+
+  @override
+  String get noResults => 'Brak wyników.';
+
+  @override
+  String get errLoadAssets => 'Nie udało się pobrać aktywów';
+
+  @override
+  String get assetNotListedQuestion => 'Nie ma Twojego aktywa? ';
+
+  @override
+  String get addInOtherCategory => 'Dodaj je w kategorii Inne';
+
+  @override
+  String get andSetValueManually => ' i ustaw wartość ręcznie.';
+
+  @override
+  String get pickFromList => 'Wybierz z listy';
+
+  @override
+  String get chooseAsset => 'Wybierz aktywo';
 }
