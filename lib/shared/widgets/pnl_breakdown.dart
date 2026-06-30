@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/portfolio.dart';
 import '../../core/models/transaction.dart';
 import '../../core/providers/portfolio_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
@@ -81,8 +82,8 @@ class _PnlBreakdownState extends ConsumerState<PnlBreakdown> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('Skład zmiany',
-                    style: TextStyle(
+                Text(AppLocalizations.of(context).changeBreakdown,
+                    style: const TextStyle(
                         color: AppColors.textSecondary, fontSize: 12)),
                 Icon(_expanded ? Icons.expand_less : Icons.expand_more,
                     color: AppColors.textSecondary, size: 18),
@@ -92,12 +93,12 @@ class _PnlBreakdownState extends ConsumerState<PnlBreakdown> {
         ),
         if (_expanded) ...[
           const SizedBox(height: 6),
-          _line('Transakcje', txComponent),
+          _line(AppLocalizations.of(context).breakdownTransactions, txComponent),
           const SizedBox(height: 6),
-          _line('Ruch ceny', priceComponent),
+          _line(AppLocalizations.of(context).breakdownPriceMovement, priceComponent),
           if (showInterest) ...[
             const SizedBox(height: 6),
-            _line('Odsetki', interestComponent),
+            _line(AppLocalizations.of(context).breakdownInterest, interestComponent),
           ],
         ],
       ],

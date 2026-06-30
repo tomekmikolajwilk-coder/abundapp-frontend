@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api/portfolio_api.dart';
 import '../../core/providers/auth_provider.dart';
+import '../../core/providers/locale_provider.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/providers/preferences_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/models/holding.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
@@ -17,6 +19,49 @@ import '../../shared/widgets/pnl_header.dart';
 import '../../shared/widgets/top_movers.dart';
 import '../../shared/widgets/value_chart.dart';
 import 'dashboard_context.dart';
+
+/// Picker języka (bottom sheet). null = systemowy (auto-detekcja). Nazwy języków
+/// pokazujemy w ich własnym języku (endonimy), niezależnie od bieżącego locale.
+void _showLanguagePicker(BuildContext context, WidgetRef ref) {
+  final l = AppLocalizations.of(context);
+  final current = ref.read(localeProvider)?.languageCode;
+  final options = <(String?, String)>[
+    (null, l.languageSystem),
+    ('en', 'English'),
+    ('pl', 'Polski'),
+    ('de', 'Deutsch'),
+    ('fr', 'Français'),
+    ('es', 'Español'),
+  ];
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: AppColors.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (sheetCtx) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: options.map((o) {
+          final selected = o.$1 == current;
+          return ListTile(
+            title: Text(o.$2,
+                style: TextStyle(
+                    color: selected ? AppColors.accent : AppColors.textPrimary,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.normal)),
+            trailing: selected
+                ? const Icon(Icons.check, color: AppColors.accent, size: 20)
+                : null,
+            onTap: () {
+              ref.read(localeProvider.notifier).set(o.$1);
+              Navigator.pop(sheetCtx);
+            },
+          );
+        }).toList(),
+      ),
+    ),
+  );
+}
 
 class DashboardScreen extends ConsumerStatefulWidget {
   final DashboardContext context;
@@ -140,6 +185,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     onSelected: (value) {
                       if (value == 'logout') {
                         ref.read(authRepositoryProvider).signOut();
+                      } else if (value == 'language') {
+                        _showLanguagePicker(ctx, ref);
                       }
                     },
                     itemBuilder: (_) => [
@@ -161,15 +208,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ),
                       ),
                       const PopupMenuDivider(),
-                      const PopupMenuItem(
+                      PopupMenuItem(
+                        value: 'language',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.language, size: 18,
+                                color: AppColors.textPrimary),
+                            const SizedBox(width: 10),
+                            Text(AppLocalizations.of(ctx).language,
+                                style: const TextStyle(color: AppColors.textPrimary)),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
                         value: 'logout',
                         child: Row(
                           children: [
-                            Icon(Icons.logout, size: 18,
+                            const Icon(Icons.logout, size: 18,
                                 color: AppColors.textPrimary),
-                            SizedBox(width: 10),
-                            Text('Wyloguj się',
-                                style: TextStyle(color: AppColors.textPrimary)),
+                            const SizedBox(width: 10),
+                            Text(AppLocalizations.of(ctx).logout,
+                                style: const TextStyle(color: AppColors.textPrimary)),
                           ],
                         ),
                       ),

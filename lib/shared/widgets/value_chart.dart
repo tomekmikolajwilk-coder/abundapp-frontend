@@ -5,6 +5,7 @@ import 'package:syncfusion_flutter_charts/charts.dart' hide ChartPoint;
 import '../../core/models/chart_point.dart';
 import '../../core/models/portfolio.dart';
 import '../../core/providers/chart_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
@@ -37,7 +38,7 @@ class ValueChart extends ConsumerWidget {
         Row(
           children: [
             Text(
-              'Wartość w czasie',
+              AppLocalizations.of(context).valueOverTime,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 15),
             ),
             const Spacer(),
@@ -71,9 +72,9 @@ class ValueChart extends ConsumerWidget {
                           value: _scopedValue(live, dashContext)),
                     ];
               return pts.isEmpty
-                  ? const Center(
-                      child: Text('Brak danych',
-                          style: TextStyle(color: AppColors.textSecondary)),
+                  ? Center(
+                      child: Text(AppLocalizations.of(context).noData,
+                          style: const TextStyle(color: AppColors.textSecondary)),
                     )
                   : _SfChart(points: pts, range: range, currency: currency);
             },
