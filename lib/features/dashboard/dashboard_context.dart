@@ -40,5 +40,7 @@ String categoryLabel(String id) => switch (id) {
       'bonds' => 'Obligacje',
       'deposits' => 'Lokaty',
       'other' => 'Inne',
+      // Sentinel z backendu (asset bez kategorii) — nigdy nie pokazuj surowego „unknown" userowi.
+      'unknown' => 'Inne',
       _ => id,
     };
