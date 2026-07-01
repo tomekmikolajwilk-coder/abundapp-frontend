@@ -649,6 +649,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'An asset that\'s not in the lists (e.g. an unsupported stock) can be shown in a matching category.'**
   String get otherDisplayHint;
+
+  /// No description provided for @topMovers.
+  ///
+  /// In en, this message translates to:
+  /// **'Top movers'**
+  String get topMovers;
 }
 
 class _AppLocalizationsDelegate

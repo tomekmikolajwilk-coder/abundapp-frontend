@@ -93,5 +93,6 @@
   "egOne": "e.g. 1",
   "egFive": "e.g. 5",
   "etfDisplayHint": "E.g. a bond ETF can be shown under \"Bonds\" instead of \"ETFs\".",
-  "otherDisplayHint": "An asset that's not in the lists (e.g. an unsupported stock) can be shown in a matching category."
+  "otherDisplayHint": "An asset that's not in the lists (e.g. an unsupported stock) can be shown in a matching category.",
+  "topMovers": "Top movers"
 }

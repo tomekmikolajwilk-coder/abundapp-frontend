@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/format.dart';
 import '../../features/dashboard/dashboard_context.dart';
 import '../../features/dashboard/dashboard_screen.dart';
+import '../../l10n/app_localizations.dart';
 import 'asset_avatar.dart';
 import 'chart_reveal.dart';
 
@@ -86,7 +87,7 @@ class TopMovers extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Top movers',
+            AppLocalizations.of(context).topMovers,
             style:
                 Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 15),
           ),

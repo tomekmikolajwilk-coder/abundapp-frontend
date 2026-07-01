@@ -297,4 +297,7 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get otherDisplayHint =>
       'Eine Anlage, die nicht in den Listen steht (z. B. eine nicht unterstützte Aktie), kannst du in einer passenden Kategorie anzeigen.';
+
+  @override
+  String get topMovers => 'Größte Bewegungen';
 }

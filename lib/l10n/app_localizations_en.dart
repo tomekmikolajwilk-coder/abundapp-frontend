@@ -296,4 +296,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get otherDisplayHint =>
       'An asset that\'s not in the lists (e.g. an unsupported stock) can be shown in a matching category.';
+
+  @override
+  String get topMovers => 'Top movers';
 }

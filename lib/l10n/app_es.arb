@@ -92,5 +92,6 @@
   "egOne": "p. ej. 1",
   "egFive": "p. ej. 5",
   "etfDisplayHint": "P. ej. un ETF de bonos puede mostrarse en «Bonos» en lugar de «ETF».",
-  "otherDisplayHint": "Un activo que no está en las listas (p. ej. una acción no admitida) puede mostrarse en una categoría correspondiente."
+  "otherDisplayHint": "Un activo que no está en las listas (p. ej. una acción no admitida) puede mostrarse en una categoría correspondiente.",
+  "topMovers": "Mayores movimientos"
 }

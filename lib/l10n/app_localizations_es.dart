@@ -297,4 +297,7 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get otherDisplayHint =>
       'Un activo que no está en las listas (p. ej. una acción no admitida) puede mostrarse en una categoría correspondiente.';
+
+  @override
+  String get topMovers => 'Mayores movimientos';
 }

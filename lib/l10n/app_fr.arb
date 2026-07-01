@@ -92,5 +92,6 @@
   "egOne": "p. ex. 1",
   "egFive": "p. ex. 5",
   "etfDisplayHint": "P. ex. un ETF obligataire peut être affiché sous « Obligations » au lieu de « ETF ».",
-  "otherDisplayHint": "Un actif qui n'est pas dans les listes (p. ex. une action non prise en charge) peut être affiché dans une catégorie correspondante."
+  "otherDisplayHint": "Un actif qui n'est pas dans les listes (p. ex. une action non prise en charge) peut être affiché dans une catégorie correspondante.",
+  "topMovers": "Plus fortes variations"
 }

@@ -295,4 +295,7 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get otherDisplayHint =>
       'Aktywo, którego nie ma na listach (np. akcja spoza obsługiwanych) możesz pokazać w pasującej kategorii.';
+
+  @override
+  String get topMovers => 'Największe ruchy';
 }

@@ -298,4 +298,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get otherDisplayHint =>
       'Un actif qui n\'est pas dans les listes (p. ex. une action non prise en charge) peut être affiché dans une catégorie correspondante.';
+
+  @override
+  String get topMovers => 'Plus fortes variations';
 }

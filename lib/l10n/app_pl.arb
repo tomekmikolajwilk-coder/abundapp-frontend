@@ -92,5 +92,6 @@
   "egOne": "np. 1",
   "egFive": "np. 5",
   "etfDisplayHint": "Np. ETF na obligacje możesz pokazać w „Obligacje” zamiast „ETF-y”.",
-  "otherDisplayHint": "Aktywo, którego nie ma na listach (np. akcja spoza obsługiwanych) możesz pokazać w pasującej kategorii."
+  "otherDisplayHint": "Aktywo, którego nie ma na listach (np. akcja spoza obsługiwanych) możesz pokazać w pasującej kategorii.",
+  "topMovers": "Największe ruchy"
 }
