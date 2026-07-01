@@ -376,4 +376,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get errorLabel => 'Erreur';
+
+  @override
+  String get errGeneric => 'Une erreur s\'est produite. Veuillez réessayer.';
 }

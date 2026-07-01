@@ -127,5 +127,6 @@
   "deleteAssetButton": "Eliminar activo",
   "loggedInAs": "Conectado como",
   "open": "Abrir",
-  "errorLabel": "Error"
+  "errorLabel": "Error",
+  "errGeneric": "Algo salió mal. Inténtalo de nuevo."
 }

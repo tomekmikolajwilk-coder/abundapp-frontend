@@ -155,5 +155,6 @@
   "deleteAssetButton": "Delete asset",
   "loggedInAs": "Signed in as",
   "open": "Open",
-  "errorLabel": "Error"
+  "errorLabel": "Error",
+  "errGeneric": "Something went wrong. Please try again."
 }

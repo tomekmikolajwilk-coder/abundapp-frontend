@@ -8,6 +8,7 @@ import '../../core/providers/preferences_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/models/holding.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/api_error.dart';
 import '../../core/utils/format.dart';
 import '../add_asset/add_asset_screen.dart';
 import '../add_asset/asset_builder.dart';
@@ -170,7 +171,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   IconButton(
                     icon: const Icon(Icons.receipt_long_outlined,
                         color: AppColors.textSecondary),
-                    tooltip: 'Transakcje',
+                    tooltip: AppLocalizations.of(ctx).txTitle,
                     onPressed: () => Navigator.push(
                       ctx,
                       MaterialPageRoute(
@@ -883,7 +884,7 @@ class _HoldingEditorState extends ConsumerState<_HoldingEditor> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.toString().replaceFirst('Exception: ', '');
+          _error = localizedApiError(AppLocalizations.of(context), e);
           _busy = false;
         });
       }
@@ -933,7 +934,7 @@ class _HoldingEditorState extends ConsumerState<_HoldingEditor> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.toString().replaceFirst('Exception: ', '');
+          _error = localizedApiError(AppLocalizations.of(context), e);
           _busy = false;
         });
       }

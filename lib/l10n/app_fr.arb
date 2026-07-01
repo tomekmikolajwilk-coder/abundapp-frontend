@@ -127,5 +127,6 @@
   "deleteAssetButton": "Supprimer l'actif",
   "loggedInAs": "Connecté en tant que",
   "open": "Ouvrir",
-  "errorLabel": "Erreur"
+  "errorLabel": "Erreur",
+  "errGeneric": "Une erreur s'est produite. Veuillez réessayer."
 }

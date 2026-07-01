@@ -7,6 +7,7 @@ import '../../core/api/portfolio_api.dart';
 import '../../core/models/available_asset.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/api_error.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/asset_avatar.dart';
 import '../dashboard/dashboard_context.dart';
@@ -412,21 +413,8 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen> {
     }
   }
 
-  String _cleanError(Object e) {
-    final l = AppLocalizations.of(context);
-    // 503 = przejściowa czkawka źródła ceny (np. TD chwilowo nie odpowiedział).
-    // To NIE trwały brak — user może po prostu spróbować ponownie (przycisk „Dodaj").
-    if (e is ApiException && e.statusCode == 503) {
-      return l.errPriceTransient;
-    }
-    final msg = e.toString().replaceFirst('Exception: ', '');
-    // Add-time guard (Faza 3): źródło ceny TRWALE nie ma notowań dla aktywa (400).
-    // Pokazujemy przyjazny komunikat z furtką „Inne".
-    if (msg.contains('Brak notowań')) {
-      return l.errPriceUnavailable;
-    }
-    return msg;
-  }
+  String _cleanError(Object e) =>
+      localizedApiError(AppLocalizations.of(context), e);
 
   void _fail(String msg) => setState(() => _error = msg);
 }

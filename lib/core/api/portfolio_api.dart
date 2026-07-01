@@ -136,7 +136,7 @@ Future<AssetSearchPage> searchAssets({
   final uri =
       Uri.parse('$_baseUrl/assets/search').replace(queryParameters: params);
   final response = await http.get(uri, headers: await _freshHeaders());
-  if (response.statusCode != 200) throw Exception(_apiError(response));
+  if (response.statusCode != 200) throw _apiException(response);
 
   final json = jsonDecode(response.body) as Map<String, dynamic>;
   final results = (json['results'] as List<dynamic>? ?? [])
@@ -146,26 +146,31 @@ Future<AssetSearchPage> searchAssets({
   return AssetSearchPage(results: results, hasMore: json['has_more'] == true);
 }
 
-/// Błąd HTTP z naszego API — niesie kod statusu, żeby UI mogło rozróżnić
-/// przypadki (np. 503 = przejściowa czkawka źródła ceny vs 400 = trwały brak notowań).
+/// Błąd HTTP z naszego API — niesie kod statusu oraz maszynowy `code` (np.
+/// "price_unavailable"), po którym UI mapuje błąd na ZLOKALIZOWANY komunikat.
+/// `message` to human-readable fallback (może być po polsku — nie pokazujemy go userowi).
 class ApiException implements Exception {
   final int statusCode;
   final String message;
-  ApiException(this.statusCode, this.message);
+  final String? code;
+  ApiException(this.statusCode, this.message, [this.code]);
   @override
   String toString() => message;
 }
 
-/// Wyciąga czytelny komunikat błędu z odpowiedzi (body JSON `{error|message}`
-/// albo surowy tekst), z fallbackiem na kod HTTP.
-String _apiError(http.Response r) {
+/// Buduje ApiException z odpowiedzi: wyciąga `error`/`message` i maszynowy `code`.
+ApiException _apiException(http.Response r) {
+  String message = r.body.isNotEmpty ? r.body : 'HTTP ${r.statusCode}';
+  String? code;
   try {
     final json = jsonDecode(r.body);
-    if (json is Map && (json['error'] ?? json['message']) != null) {
-      return (json['error'] ?? json['message']).toString();
+    if (json is Map) {
+      final m = json['error'] ?? json['message'];
+      if (m != null) message = m.toString();
+      code = json['code'] as String?;
     }
   } catch (_) {}
-  return r.body.isNotEmpty ? r.body : 'HTTP ${r.statusCode}';
+  return ApiException(r.statusCode, message, code);
 }
 
 /// Dodaje aktywo do portfela i zwraca utworzony wiersz (zawiera `id`).
@@ -178,7 +183,7 @@ Future<Map<String, dynamic>> addHolding(Map<String, dynamic> body) async {
   if (response.statusCode >= 200 && response.statusCode < 300) {
     return jsonDecode(response.body) as Map<String, dynamic>;
   }
-  throw ApiException(response.statusCode, _apiError(response));
+  throw _apiException(response);
 }
 
 /// Aktualizuje ilość i/lub wartość jednostki holdingu. PATCH /holdings/:id.
@@ -188,7 +193,7 @@ Future<void> updateHolding(String id, Map<String, dynamic> body) async {
   final response =
       await http.patch(uri, headers: await _freshHeaders(), body: jsonEncode(body));
   if (response.statusCode >= 200 && response.statusCode < 300) return;
-  throw Exception(_apiError(response));
+  throw _apiException(response);
 }
 
 /// Usuwa holding z portfela. DELETE /holdings/:id.
@@ -196,7 +201,7 @@ Future<void> deleteHolding(String id) async {
   final uri = Uri.parse('$_baseUrl/holdings/$id');
   final response = await http.delete(uri, headers: await _freshHeaders());
   if (response.statusCode >= 200 && response.statusCode < 300) return;
-  throw Exception(_apiError(response));
+  throw _apiException(response);
 }
 
 /// Ledger transakcji (malejąco po dacie). `value_ccy` jest podpisana (buy +,

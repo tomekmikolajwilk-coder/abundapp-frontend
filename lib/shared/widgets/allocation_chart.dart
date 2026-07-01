@@ -126,11 +126,14 @@ class _BarRow extends StatelessWidget {
             children: [
               leading,
               const SizedBox(width: 8),
-              // Nazwa
+              // Nazwa — jedna linia z „…", żeby długie jednowyrazowe nazwy
+              // (Nieruchomości, Kosztowności) nie łamały się w środku słowa.
               SizedBox(
-                width: 56,
+                width: 76,
                 child: Text(
                   label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
                     fontSize: 13,

@@ -127,5 +127,6 @@
   "deleteAssetButton": "Anlage löschen",
   "loggedInAs": "Angemeldet als",
   "open": "Öffnen",
-  "errorLabel": "Fehler"
+  "errorLabel": "Fehler",
+  "errGeneric": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
 }

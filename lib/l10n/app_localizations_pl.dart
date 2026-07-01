@@ -373,4 +373,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get errorLabel => 'Błąd';
+
+  @override
+  String get errGeneric => 'Coś poszło nie tak. Spróbuj ponownie.';
 }
