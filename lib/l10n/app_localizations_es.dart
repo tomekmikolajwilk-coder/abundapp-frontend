@@ -148,7 +148,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get bondGrowthHint =>
-      'El valor crece esto al año — se acumula a diario.';
+      'El valor aumenta ese porcentaje al año — se acumula a diario.';
 
   @override
   String get bondRateLabel => 'Tipo de interés anual (%)';

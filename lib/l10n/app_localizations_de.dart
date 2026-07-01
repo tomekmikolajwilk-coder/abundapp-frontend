@@ -21,7 +21,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get valueOverTime => 'Wert im Zeitverlauf';
 
   @override
-  String get changeBreakdown => 'Veränderung – Aufschlüsselung';
+  String get changeBreakdown => 'Zusammensetzung der Änderung';
 
   @override
   String get breakdownTransactions => 'Transaktionen';
@@ -82,7 +82,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get periodYearStart => 'Seit Jahresbeginn';
 
   @override
-  String get periodAllTime => 'Gesamt';
+  String get periodAllTime => 'Seit Beginn';
 
   @override
   String get categoryCrypto => 'Krypto';
@@ -115,7 +115,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryOther => 'Sonstiges';
 
   @override
-  String get addSectionMarket => 'Markt-Anlagen';
+  String get addSectionMarket => 'Marktanlagen';
 
   @override
   String get addSectionMarketHint =>
@@ -148,7 +148,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bondGrowthHint =>
-      'Der Wert wächst jährlich um diesen Betrag — täglich verzinst.';
+      'Der Wert wächst jährlich um diesen Prozentsatz — täglich verzinst.';
 
   @override
   String get bondRateLabel => 'Jährlicher Zinssatz (%)';

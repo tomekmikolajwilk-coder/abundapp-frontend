@@ -58,7 +58,7 @@
   "fieldName": "Nombre",
   "fieldQuantity": "Cantidad",
   "fieldUnitValue": "Valor unitario",
-  "bondGrowthHint": "El valor crece esto al año — se acumula a diario.",
+  "bondGrowthHint": "El valor aumenta ese porcentaje al año — se acumula a diario.",
   "bondRateLabel": "Tipo de interés anual (%)",
   "bondInfoTitle": "Cómo funciona el cálculo",
   "bondInfoText": "El valor de un bono crece a diario según el tipo de interés dividido entre 365 días. Con un 5% anual y un valor de 100, tras un año tienes unos 105. La app lo recalcula una vez al día en el servidor.",

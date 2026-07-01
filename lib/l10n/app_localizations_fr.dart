@@ -148,7 +148,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bondGrowthHint =>
-      'La valeur augmente de ce montant par an — calculé chaque jour.';
+      'La valeur augmente de ce pourcentage par an — calculé chaque jour.';
 
   @override
   String get bondRateLabel => 'Taux d\'intérêt annuel (%)';
@@ -158,7 +158,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bondInfoText =>
-      'La valeur d\'une obligation augmente chaque jour du taux d\'intérêt divisé par 365 jours. À 5% par an et une valeur de 100, après un an vous avez environ 105. L\'app recalcule cela une fois par jour côté serveur.';
+      'La valeur d\'une obligation augmente chaque jour du taux d\'intérêt divisé par 365 jours. À 5 % par an et une valeur de 100, vous avez environ 105 après un an. L\'app recalcule cela une fois par jour côté serveur.';
 
   @override
   String get ok => 'OK';
