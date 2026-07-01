@@ -17,9 +17,21 @@
   "portfolioCenter": "Portfolio",
   "portfolioValue": "Portfoliowert",
   "valueOf": "Wert von {name}",
-  "@valueOf": { "placeholders": { "name": { "type": "String" } } },
+  "@valueOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "yourAsset": "Dein {asset}",
-  "@yourAsset": { "placeholders": { "asset": { "type": "String" } } },
+  "@yourAsset": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
   "periodLastVisit": "Seit letztem Besuch",
   "periodYesterday": "Seit gestern",
   "periodWeekStart": "Seit Wochenbeginn",
@@ -93,5 +105,27 @@
   "egFive": "z. B. 5",
   "etfDisplayHint": "Z. B. einen Anleihen-ETF kannst du unter „Anleihen“ statt „ETFs“ anzeigen.",
   "otherDisplayHint": "Eine Anlage, die nicht in den Listen steht (z. B. eine nicht unterstützte Aktie), kannst du in einer passenden Kategorie anzeigen.",
-  "topMovers": "Größte Bewegungen"
+  "topMovers": "Größte Bewegungen",
+  "emptyPortfolioTitle": "Dein Portfolio ist leer",
+  "emptyPortfolioBody": "Füge deine erste Anlage hinzu — Bargeld, Aktien, Gold oder Krypto — und du siehst hier dein gesamtes Vermögen.",
+  "addAssets": "Anlagen hinzufügen",
+  "currencyPickerTitle": "Wert in Währung anzeigen",
+  "currencyPickerNote": "Umgerechnet zum heutigen Kurs. Der Verlauf im Chart ist eine Projektion des aktuellen Kurses, kein vergangener Wert.",
+  "currencyLoadError": "Währungen konnten nicht geladen werden",
+  "worth": "im Wert von ",
+  "editAmountAndValue": "Menge und Wert bearbeiten",
+  "editAmountTooltip": "Menge bearbeiten",
+  "errEnterValidValue": "Gib einen gültigen Wert ein.",
+  "deleteAssetTitle": "Anlage löschen?",
+  "deleteAssetConfirm": "„{name}“ verschwindet aus deinem Portfolio.",
+  "cancel": "Abbrechen",
+  "delete": "Löschen",
+  "updateAssetTitle": "„{name}“ aktualisieren",
+  "editAmountTitle": "Menge ändern — {name}",
+  "valueEditServerHint": "Das Ändern des Werts ist nach einem Server-Update verfügbar. Um die Bewertung vorerst zu korrigieren, lösche die Anlage und füge sie erneut hinzu.",
+  "save": "Speichern",
+  "deleteAssetButton": "Anlage löschen",
+  "loggedInAs": "Angemeldet als",
+  "open": "Öffnen",
+  "errorLabel": "Fehler"
 }

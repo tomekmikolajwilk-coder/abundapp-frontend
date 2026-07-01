@@ -59,7 +59,7 @@ class ValueChart extends ConsumerWidget {
           child: dataAsync.when(
             loading: () => const _ChartSkeleton(),
             error: (e, _) => Center(
-              child: Text('Błąd: $e',
+              child: Text('${AppLocalizations.of(context).errorLabel}: $e',
                   style: const TextStyle(color: AppColors.negative, fontSize: 12)),
             ),
             data: (points) {

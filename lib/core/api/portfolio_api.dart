@@ -165,7 +165,7 @@ String _apiError(http.Response r) {
       return (json['error'] ?? json['message']).toString();
     }
   } catch (_) {}
-  return r.body.isNotEmpty ? r.body : 'Błąd ${r.statusCode}';
+  return r.body.isNotEmpty ? r.body : 'HTTP ${r.statusCode}';
 }
 
 /// Dodaje aktywo do portfela i zwraca utworzony wiersz (zawiera `id`).

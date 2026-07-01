@@ -17,9 +17,21 @@
   "portfolioCenter": "Cartera",
   "portfolioValue": "Valor de la cartera",
   "valueOf": "Valor de {name}",
-  "@valueOf": { "placeholders": { "name": { "type": "String" } } },
+  "@valueOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "yourAsset": "Tu {asset}",
-  "@yourAsset": { "placeholders": { "asset": { "type": "String" } } },
+  "@yourAsset": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
   "periodLastVisit": "Desde la última visita",
   "periodYesterday": "Desde ayer",
   "periodWeekStart": "Desde el inicio de la semana",
@@ -93,5 +105,27 @@
   "egFive": "p. ej. 5",
   "etfDisplayHint": "P. ej. un ETF de bonos puede mostrarse en «Bonos» en lugar de «ETF».",
   "otherDisplayHint": "Un activo que no está en las listas (p. ej. una acción no admitida) puede mostrarse en una categoría correspondiente.",
-  "topMovers": "Mayores movimientos"
+  "topMovers": "Mayores movimientos",
+  "emptyPortfolioTitle": "Tu cartera está vacía",
+  "emptyPortfolioBody": "Añade tu primer activo — efectivo, acciones, oro o cripto — y verás aquí todo tu patrimonio.",
+  "addAssets": "Añadir activos",
+  "currencyPickerTitle": "Mostrar valor en moneda",
+  "currencyPickerNote": "Convertido al tipo de cambio de hoy. El historial del gráfico es una proyección del tipo actual, no un valor pasado.",
+  "currencyLoadError": "No se pudieron cargar las monedas",
+  "worth": "por un valor de ",
+  "editAmountAndValue": "Editar cantidad y valor",
+  "editAmountTooltip": "Editar cantidad",
+  "errEnterValidValue": "Introduce un valor válido.",
+  "deleteAssetTitle": "¿Eliminar activo?",
+  "deleteAssetConfirm": "«{name}» desaparecerá de tu cartera.",
+  "cancel": "Cancelar",
+  "delete": "Eliminar",
+  "updateAssetTitle": "Actualizar «{name}»",
+  "editAmountTitle": "Cambiar cantidad — {name}",
+  "valueEditServerHint": "El cambio de valor estará disponible tras una actualización del servidor. Por ahora, para corregir la valoración, elimina el activo y añádelo de nuevo.",
+  "save": "Guardar",
+  "deleteAssetButton": "Eliminar activo",
+  "loggedInAs": "Conectado como",
+  "open": "Abrir",
+  "errorLabel": "Error"
 }

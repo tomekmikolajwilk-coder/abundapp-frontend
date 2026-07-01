@@ -17,9 +17,21 @@
   "portfolioCenter": "Portfel",
   "portfolioValue": "Wartość portfela",
   "valueOf": "Wartość {name}",
-  "@valueOf": { "placeholders": { "name": { "type": "String" } } },
+  "@valueOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "yourAsset": "Twoje {asset} w portfelu",
-  "@yourAsset": { "placeholders": { "asset": { "type": "String" } } },
+  "@yourAsset": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
   "periodLastVisit": "Od ostatniej wizyty",
   "periodYesterday": "Od wczoraj",
   "periodWeekStart": "Od początku tygodnia",
@@ -93,5 +105,27 @@
   "egFive": "np. 5",
   "etfDisplayHint": "Np. ETF na obligacje możesz pokazać w „Obligacje” zamiast „ETF-y”.",
   "otherDisplayHint": "Aktywo, którego nie ma na listach (np. akcja spoza obsługiwanych) możesz pokazać w pasującej kategorii.",
-  "topMovers": "Największe ruchy"
+  "topMovers": "Największe ruchy",
+  "emptyPortfolioTitle": "Twój portfel jest pusty",
+  "emptyPortfolioBody": "Dodaj pierwsze aktywo — gotówkę, akcje, złoto albo krypto — a zobaczysz tutaj wartość całego majątku.",
+  "addAssets": "Dodaj aktywa",
+  "currencyPickerTitle": "Pokaż wartość w walucie",
+  "currencyPickerNote": "Przeliczenie po dzisiejszym kursie. Historia na wykresie jest projekcją bieżącego kursu, nie wartością z przeszłości.",
+  "currencyLoadError": "Nie udało się pobrać walut",
+  "worth": "o wartości ",
+  "editAmountAndValue": "Edytuj ilość i wartość",
+  "editAmountTooltip": "Edytuj ilość",
+  "errEnterValidValue": "Podaj poprawną wartość.",
+  "deleteAssetTitle": "Usunąć aktywo?",
+  "deleteAssetConfirm": "„{name}” zniknie z portfela.",
+  "cancel": "Anuluj",
+  "delete": "Usuń",
+  "updateAssetTitle": "Aktualizuj „{name}”",
+  "editAmountTitle": "Zmień ilość — {name}",
+  "valueEditServerHint": "Zmiana wartości będzie dostępna po aktualizacji serwera. Na razie, by poprawić wycenę, usuń aktywo i dodaj ponownie.",
+  "save": "Zapisz",
+  "deleteAssetButton": "Usuń aktywo",
+  "loggedInAs": "Zalogowano jako",
+  "open": "Otwórz",
+  "errorLabel": "Błąd"
 }

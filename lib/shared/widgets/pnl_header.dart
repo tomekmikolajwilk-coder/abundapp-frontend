@@ -34,8 +34,8 @@ class PnlHeader extends ConsumerWidget {
 
     return portfolioAsync.when(
       loading: () => const _PnlSkeleton(),
-      error: (e, _) =>
-          Text('Błąd: $e', style: const TextStyle(color: AppColors.negative)),
+      error: (e, _) => Text('${AppLocalizations.of(ctx).errorLabel}: $e',
+          style: const TextStyle(color: AppColors.negative)),
       data: (portfolio) {
         final snapshot = snapshotAsync.valueOrNull;
 

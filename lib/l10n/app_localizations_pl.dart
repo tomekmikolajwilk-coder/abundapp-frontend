@@ -298,4 +298,79 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get topMovers => 'Największe ruchy';
+
+  @override
+  String get emptyPortfolioTitle => 'Twój portfel jest pusty';
+
+  @override
+  String get emptyPortfolioBody =>
+      'Dodaj pierwsze aktywo — gotówkę, akcje, złoto albo krypto — a zobaczysz tutaj wartość całego majątku.';
+
+  @override
+  String get addAssets => 'Dodaj aktywa';
+
+  @override
+  String get currencyPickerTitle => 'Pokaż wartość w walucie';
+
+  @override
+  String get currencyPickerNote =>
+      'Przeliczenie po dzisiejszym kursie. Historia na wykresie jest projekcją bieżącego kursu, nie wartością z przeszłości.';
+
+  @override
+  String get currencyLoadError => 'Nie udało się pobrać walut';
+
+  @override
+  String get worth => 'o wartości ';
+
+  @override
+  String get editAmountAndValue => 'Edytuj ilość i wartość';
+
+  @override
+  String get editAmountTooltip => 'Edytuj ilość';
+
+  @override
+  String get errEnterValidValue => 'Podaj poprawną wartość.';
+
+  @override
+  String get deleteAssetTitle => 'Usunąć aktywo?';
+
+  @override
+  String deleteAssetConfirm(String name) {
+    return '„$name” zniknie z portfela.';
+  }
+
+  @override
+  String get cancel => 'Anuluj';
+
+  @override
+  String get delete => 'Usuń';
+
+  @override
+  String updateAssetTitle(String name) {
+    return 'Aktualizuj „$name”';
+  }
+
+  @override
+  String editAmountTitle(String name) {
+    return 'Zmień ilość — $name';
+  }
+
+  @override
+  String get valueEditServerHint =>
+      'Zmiana wartości będzie dostępna po aktualizacji serwera. Na razie, by poprawić wycenę, usuń aktywo i dodaj ponownie.';
+
+  @override
+  String get save => 'Zapisz';
+
+  @override
+  String get deleteAssetButton => 'Usuń aktywo';
+
+  @override
+  String get loggedInAs => 'Zalogowano jako';
+
+  @override
+  String get open => 'Otwórz';
+
+  @override
+  String get errorLabel => 'Błąd';
 }

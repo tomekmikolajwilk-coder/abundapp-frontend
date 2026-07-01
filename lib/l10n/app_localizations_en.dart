@@ -299,4 +299,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get topMovers => 'Top movers';
+
+  @override
+  String get emptyPortfolioTitle => 'Your portfolio is empty';
+
+  @override
+  String get emptyPortfolioBody =>
+      'Add your first asset — cash, stocks, gold or crypto — and you\'ll see your whole net worth here.';
+
+  @override
+  String get addAssets => 'Add assets';
+
+  @override
+  String get currencyPickerTitle => 'Show value in currency';
+
+  @override
+  String get currencyPickerNote =>
+      'Converted at today\'s rate. The chart history is a projection of the current rate, not a past value.';
+
+  @override
+  String get currencyLoadError => 'Couldn\'t load currencies';
+
+  @override
+  String get worth => 'worth ';
+
+  @override
+  String get editAmountAndValue => 'Edit amount and value';
+
+  @override
+  String get editAmountTooltip => 'Edit amount';
+
+  @override
+  String get errEnterValidValue => 'Enter a valid value.';
+
+  @override
+  String get deleteAssetTitle => 'Delete asset?';
+
+  @override
+  String deleteAssetConfirm(String name) {
+    return '\"$name\" will disappear from your portfolio.';
+  }
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String updateAssetTitle(String name) {
+    return 'Update \"$name\"';
+  }
+
+  @override
+  String editAmountTitle(String name) {
+    return 'Change amount — $name';
+  }
+
+  @override
+  String get valueEditServerHint =>
+      'Changing the value will be available after a server update. For now, to fix the valuation, delete the asset and add it again.';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get deleteAssetButton => 'Delete asset';
+
+  @override
+  String get loggedInAs => 'Signed in as';
+
+  @override
+  String get open => 'Open';
+
+  @override
+  String get errorLabel => 'Error';
 }

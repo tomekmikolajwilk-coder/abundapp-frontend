@@ -210,15 +210,15 @@ class _SelectedLabel extends StatelessWidget {
               color: AppColors.accent,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Otwórz',
-                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                  AppLocalizations.of(context).open,
+                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
                 ),
-                SizedBox(width: 3),
-                Icon(Icons.arrow_forward_ios, color: Colors.white, size: 9),
+                const SizedBox(width: 3),
+                const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 9),
               ],
             ),
           ),

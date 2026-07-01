@@ -195,8 +195,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Zalogowano jako',
-                                style: TextStyle(
+                            Text(AppLocalizations.of(ctx).loggedInAs,
+                                style: const TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 11)),
                             const SizedBox(height: 2),
@@ -381,12 +381,11 @@ class _EmptyPortfolio extends StatelessWidget {
                 size: 40, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
-          Text('Twój portfel jest pusty',
+          Text(AppLocalizations.of(context).emptyPortfolioTitle,
               style: theme.textTheme.displayMedium, textAlign: TextAlign.center),
           const SizedBox(height: 12),
           Text(
-            'Dodaj pierwsze aktywo — gotówkę, akcje, złoto albo krypto — '
-            'a zobaczysz tutaj wartość całego majątku.',
+            AppLocalizations.of(context).emptyPortfolioBody,
             style: theme.textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -394,8 +393,8 @@ class _EmptyPortfolio extends StatelessWidget {
           FilledButton.icon(
             onPressed: onAdd,
             icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text('Dodaj aktywa',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+            label: Text(AppLocalizations.of(context).addAssets,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.accent,
               padding:
@@ -538,23 +537,22 @@ class _CurrencySheet extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
               child: Text(
-                'Pokaż wartość w walucie',
-                style: TextStyle(
+                AppLocalizations.of(context).currencyPickerTitle,
+                style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 0, 20, 12),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
               child: Text(
-                'Przeliczenie po dzisiejszym kursie. Historia na wykresie jest '
-                'projekcją bieżącego kursu, nie wartością z przeszłości.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                AppLocalizations.of(context).currencyPickerNote,
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
               ),
             ),
             Flexible(
@@ -563,10 +561,10 @@ class _CurrencySheet extends ConsumerWidget {
                   padding: EdgeInsets.all(24),
                   child: Center(child: CircularProgressIndicator()),
                 ),
-                error: (_, _) => const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Text('Nie udało się pobrać walut',
-                      style: TextStyle(color: AppColors.textSecondary)),
+                error: (_, _) => Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(AppLocalizations.of(context).currencyLoadError,
+                      style: const TextStyle(color: AppColors.textSecondary)),
                 ),
                 data: (currencies) {
                   final ordered = orderedCurrencies(currencies, preferred);
@@ -720,9 +718,9 @@ class _HoldingDetailCard extends ConsumerWidget {
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.w600),
                         ),
-                        const TextSpan(
-                          text: 'o wartości ',
-                          style: TextStyle(color: AppColors.textSecondary),
+                        TextSpan(
+                          text: AppLocalizations.of(context).worth,
+                          style: const TextStyle(color: AppColors.textSecondary),
                         ),
                         TextSpan(
                           text: moneyCcy(holding.valueCcy, ccy),
@@ -743,7 +741,9 @@ class _HoldingDetailCard extends ConsumerWidget {
                       holding.unitCurrency ?? ccy,
                       canEditValue),
                   icon: const Icon(Icons.edit, size: 18, color: AppColors.accent),
-                  tooltip: canEditValue ? 'Edytuj ilość i wartość' : 'Edytuj ilość',
+                  tooltip: canEditValue
+                      ? AppLocalizations.of(context).editAmountAndValue
+                      : AppLocalizations.of(context).editAmountTooltip,
                   style: IconButton.styleFrom(
                     backgroundColor: AppColors.surfaceElevated,
                     shape: const CircleBorder(),
@@ -854,17 +854,18 @@ class _HoldingEditorState extends ConsumerState<_HoldingEditor> {
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context);
     final id = widget.holding.id;
-    if (id == null) return setState(() => _error = 'Brak id pozycji.');
+    if (id == null) return setState(() => _error = l.errorLabel);
     final amount = parseAmount(_amountCtrl.text);
     if (amount == null || amount <= 0) {
-      return setState(() => _error = 'Podaj poprawną ilość.');
+      return setState(() => _error = l.errEnterAmount);
     }
     final body = <String, dynamic>{'amount': amount};
     if (_editValue) {
       final value = parseAmount(_valueCtrl.text);
       if (value == null || value <= 0) {
-        return setState(() => _error = 'Podaj poprawną wartość.');
+        return setState(() => _error = l.errEnterValidValue);
       }
       // value jest już w walucie natywnej aktywa (pole edytowane tylko gdy
       // backend zwraca unit_currency) — wysyłamy bez konwersji.
@@ -894,22 +895,23 @@ class _HoldingEditorState extends ConsumerState<_HoldingEditor> {
     if (id == null) return;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dctx) => AlertDialog(
         backgroundColor: AppColors.surfaceElevated,
-        title: const Text('Usunąć aktywo?',
-            style: TextStyle(color: AppColors.textPrimary, fontSize: 16)),
-        content: Text('„${widget.holding.displayName}" zniknie z portfela.',
+        title: Text(AppLocalizations.of(dctx).deleteAssetTitle,
+            style: const TextStyle(color: AppColors.textPrimary, fontSize: 16)),
+        content: Text(
+            AppLocalizations.of(dctx).deleteAssetConfirm(widget.holding.displayName),
             style: const TextStyle(color: AppColors.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Anuluj',
-                style: TextStyle(color: AppColors.textSecondary)),
+            child: Text(AppLocalizations.of(dctx).cancel,
+                style: const TextStyle(color: AppColors.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Usuń',
-                style: TextStyle(color: AppColors.negative)),
+            child: Text(AppLocalizations.of(dctx).delete,
+                style: const TextStyle(color: AppColors.negative)),
           ),
         ],
       ),
@@ -941,9 +943,10 @@ class _HoldingEditorState extends ConsumerState<_HoldingEditor> {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final l = AppLocalizations.of(context);
     final title = _editValue
-        ? 'Aktualizuj „${widget.holding.displayName}"'
-        : 'Zmień ilość — ${widget.holding.displayName}';
+        ? l.updateAssetTitle(widget.holding.displayName)
+        : l.editAmountTitle(widget.holding.displayName);
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom),
       child: Column(
@@ -958,14 +961,14 @@ class _HoldingEditorState extends ConsumerState<_HoldingEditor> {
                   fontSize: 16,
                   fontWeight: FontWeight.w600)),
           const SizedBox(height: 20),
-          const Text('Ilość',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(l.fieldQuantity,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
           const SizedBox(height: 8),
           _sheetField(_amountCtrl),
           if (_editValue) ...[
             const SizedBox(height: 16),
-            const Text('Wartość jednostki',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+            Text(l.fieldUnitValue,
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
             const SizedBox(height: 8),
             _sheetField(_valueCtrl, suffixText: widget.currency),
           ] else if (widget.holding.isManual) ...[
@@ -975,11 +978,10 @@ class _HoldingEditorState extends ConsumerState<_HoldingEditor> {
                 const Icon(Icons.info_outline,
                     size: 15, color: AppColors.textSecondary),
                 const SizedBox(width: 6),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Zmiana wartości będzie dostępna po aktualizacji serwera. '
-                    'Na razie, by poprawić wycenę, usuń aktywo i dodaj ponownie.',
-                    style: TextStyle(
+                    l.valueEditServerHint,
+                    style: const TextStyle(
                         color: AppColors.textSecondary, fontSize: 12),
                   ),
                 ),
@@ -1013,8 +1015,8 @@ class _HoldingEditorState extends ConsumerState<_HoldingEditor> {
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white),
                     )
-                  : const Text('Zapisz',
-                      style: TextStyle(
+                  : Text(l.save,
+                      style: const TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w600)),
             ),
           ),
@@ -1024,8 +1026,8 @@ class _HoldingEditorState extends ConsumerState<_HoldingEditor> {
               onPressed: _busy ? null : _delete,
               icon: const Icon(Icons.delete_outline,
                   size: 18, color: AppColors.negative),
-              label: const Text('Usuń aktywo',
-                  style: TextStyle(color: AppColors.negative)),
+              label: Text(l.deleteAssetButton,
+                  style: const TextStyle(color: AppColors.negative)),
             ),
           ),
         ],

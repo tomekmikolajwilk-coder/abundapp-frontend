@@ -300,4 +300,79 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get topMovers => 'Mayores movimientos';
+
+  @override
+  String get emptyPortfolioTitle => 'Tu cartera está vacía';
+
+  @override
+  String get emptyPortfolioBody =>
+      'Añade tu primer activo — efectivo, acciones, oro o cripto — y verás aquí todo tu patrimonio.';
+
+  @override
+  String get addAssets => 'Añadir activos';
+
+  @override
+  String get currencyPickerTitle => 'Mostrar valor en moneda';
+
+  @override
+  String get currencyPickerNote =>
+      'Convertido al tipo de cambio de hoy. El historial del gráfico es una proyección del tipo actual, no un valor pasado.';
+
+  @override
+  String get currencyLoadError => 'No se pudieron cargar las monedas';
+
+  @override
+  String get worth => 'por un valor de ';
+
+  @override
+  String get editAmountAndValue => 'Editar cantidad y valor';
+
+  @override
+  String get editAmountTooltip => 'Editar cantidad';
+
+  @override
+  String get errEnterValidValue => 'Introduce un valor válido.';
+
+  @override
+  String get deleteAssetTitle => '¿Eliminar activo?';
+
+  @override
+  String deleteAssetConfirm(String name) {
+    return '«$name» desaparecerá de tu cartera.';
+  }
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String updateAssetTitle(String name) {
+    return 'Actualizar «$name»';
+  }
+
+  @override
+  String editAmountTitle(String name) {
+    return 'Cambiar cantidad — $name';
+  }
+
+  @override
+  String get valueEditServerHint =>
+      'El cambio de valor estará disponible tras una actualización del servidor. Por ahora, para corregir la valoración, elimina el activo y añádelo de nuevo.';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get deleteAssetButton => 'Eliminar activo';
+
+  @override
+  String get loggedInAs => 'Conectado como';
+
+  @override
+  String get open => 'Abrir';
+
+  @override
+  String get errorLabel => 'Error';
 }

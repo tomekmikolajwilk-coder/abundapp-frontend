@@ -300,4 +300,79 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get topMovers => 'Größte Bewegungen';
+
+  @override
+  String get emptyPortfolioTitle => 'Dein Portfolio ist leer';
+
+  @override
+  String get emptyPortfolioBody =>
+      'Füge deine erste Anlage hinzu — Bargeld, Aktien, Gold oder Krypto — und du siehst hier dein gesamtes Vermögen.';
+
+  @override
+  String get addAssets => 'Anlagen hinzufügen';
+
+  @override
+  String get currencyPickerTitle => 'Wert in Währung anzeigen';
+
+  @override
+  String get currencyPickerNote =>
+      'Umgerechnet zum heutigen Kurs. Der Verlauf im Chart ist eine Projektion des aktuellen Kurses, kein vergangener Wert.';
+
+  @override
+  String get currencyLoadError => 'Währungen konnten nicht geladen werden';
+
+  @override
+  String get worth => 'im Wert von ';
+
+  @override
+  String get editAmountAndValue => 'Menge und Wert bearbeiten';
+
+  @override
+  String get editAmountTooltip => 'Menge bearbeiten';
+
+  @override
+  String get errEnterValidValue => 'Gib einen gültigen Wert ein.';
+
+  @override
+  String get deleteAssetTitle => 'Anlage löschen?';
+
+  @override
+  String deleteAssetConfirm(String name) {
+    return '„$name“ verschwindet aus deinem Portfolio.';
+  }
+
+  @override
+  String get cancel => 'Abbrechen';
+
+  @override
+  String get delete => 'Löschen';
+
+  @override
+  String updateAssetTitle(String name) {
+    return '„$name“ aktualisieren';
+  }
+
+  @override
+  String editAmountTitle(String name) {
+    return 'Menge ändern — $name';
+  }
+
+  @override
+  String get valueEditServerHint =>
+      'Das Ändern des Werts ist nach einem Server-Update verfügbar. Um die Bewertung vorerst zu korrigieren, lösche die Anlage und füge sie erneut hinzu.';
+
+  @override
+  String get save => 'Speichern';
+
+  @override
+  String get deleteAssetButton => 'Anlage löschen';
+
+  @override
+  String get loggedInAs => 'Angemeldet als';
+
+  @override
+  String get open => 'Öffnen';
+
+  @override
+  String get errorLabel => 'Fehler';
 }

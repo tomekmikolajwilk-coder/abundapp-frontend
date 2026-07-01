@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../core/models/transaction.dart';
 import '../../core/providers/portfolio_provider.dart';
 import '../../core/theme/app_theme.dart';
@@ -83,7 +84,7 @@ class _TxRow extends StatelessWidget {
                         fontSize: 15,
                         fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
-                Text(_formatDate(tx.createdAt),
+                Text(_formatDate(tx.createdAt, Localizations.localeOf(context).languageCode),
                     style: const TextStyle(
                         color: AppColors.textSecondary, fontSize: 12)),
               ],
@@ -143,12 +144,7 @@ class _Empty extends StatelessWidget {
 String _fmtAmount(double v) =>
     v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
 
-const _months = [
-  'sty', 'lut', 'mar', 'kwi', 'maj', 'cze',
-  'lip', 'sie', 'wrz', 'paź', 'lis', 'gru',
-];
-
-String _formatDate(DateTime d) {
-  final l = d.toLocal();
-  return '${l.day} ${_months[l.month - 1]} ${l.year}';
-}
+// Data w formacie zależnym od locale (skróty miesięcy z intl — symbole ładuje
+// flutter_localizations dla aktywnego języka). np. PL „1 lip 2026", EN „Jul 1, 2026".
+String _formatDate(DateTime d, String locale) =>
+    DateFormat.yMMMd(locale).format(d.toLocal());

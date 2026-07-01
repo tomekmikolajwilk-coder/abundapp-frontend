@@ -17,9 +17,21 @@
   "portfolioCenter": "Portefeuille",
   "portfolioValue": "Valeur du portefeuille",
   "valueOf": "Valeur de {name}",
-  "@valueOf": { "placeholders": { "name": { "type": "String" } } },
+  "@valueOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "yourAsset": "Votre {asset}",
-  "@yourAsset": { "placeholders": { "asset": { "type": "String" } } },
+  "@yourAsset": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
   "periodLastVisit": "Depuis la dernière visite",
   "periodYesterday": "Depuis hier",
   "periodWeekStart": "Depuis le début de la semaine",
@@ -93,5 +105,27 @@
   "egFive": "p. ex. 5",
   "etfDisplayHint": "P. ex. un ETF obligataire peut être affiché sous « Obligations » au lieu de « ETF ».",
   "otherDisplayHint": "Un actif qui n'est pas dans les listes (p. ex. une action non prise en charge) peut être affiché dans une catégorie correspondante.",
-  "topMovers": "Plus fortes variations"
+  "topMovers": "Plus fortes variations",
+  "emptyPortfolioTitle": "Votre portefeuille est vide",
+  "emptyPortfolioBody": "Ajoutez votre premier actif — liquidités, actions, or ou crypto — et vous verrez ici l'ensemble de votre patrimoine.",
+  "addAssets": "Ajouter des actifs",
+  "currencyPickerTitle": "Afficher la valeur en devise",
+  "currencyPickerNote": "Converti au taux du jour. L'historique du graphique est une projection du taux actuel, pas une valeur passée.",
+  "currencyLoadError": "Impossible de charger les devises",
+  "worth": "d'une valeur de ",
+  "editAmountAndValue": "Modifier la quantité et la valeur",
+  "editAmountTooltip": "Modifier la quantité",
+  "errEnterValidValue": "Saisissez une valeur valide.",
+  "deleteAssetTitle": "Supprimer l'actif ?",
+  "deleteAssetConfirm": "« {name} » disparaîtra de votre portefeuille.",
+  "cancel": "Annuler",
+  "delete": "Supprimer",
+  "updateAssetTitle": "Mettre à jour « {name} »",
+  "editAmountTitle": "Modifier la quantité — {name}",
+  "valueEditServerHint": "La modification de la valeur sera disponible après une mise à jour du serveur. Pour l'instant, pour corriger l'estimation, supprimez l'actif et ajoutez-le à nouveau.",
+  "save": "Enregistrer",
+  "deleteAssetButton": "Supprimer l'actif",
+  "loggedInAs": "Connecté en tant que",
+  "open": "Ouvrir",
+  "errorLabel": "Erreur"
 }

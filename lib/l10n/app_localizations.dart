@@ -655,6 +655,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Top movers'**
   String get topMovers;
+
+  /// No description provided for @emptyPortfolioTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your portfolio is empty'**
+  String get emptyPortfolioTitle;
+
+  /// No description provided for @emptyPortfolioBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first asset — cash, stocks, gold or crypto — and you\'ll see your whole net worth here.'**
+  String get emptyPortfolioBody;
+
+  /// No description provided for @addAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Add assets'**
+  String get addAssets;
+
+  /// No description provided for @currencyPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show value in currency'**
+  String get currencyPickerTitle;
+
+  /// No description provided for @currencyPickerNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted at today\'s rate. The chart history is a projection of the current rate, not a past value.'**
+  String get currencyPickerNote;
+
+  /// No description provided for @currencyLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load currencies'**
+  String get currencyLoadError;
+
+  /// No description provided for @worth.
+  ///
+  /// In en, this message translates to:
+  /// **'worth '**
+  String get worth;
+
+  /// No description provided for @editAmountAndValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit amount and value'**
+  String get editAmountAndValue;
+
+  /// No description provided for @editAmountTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit amount'**
+  String get editAmountTooltip;
+
+  /// No description provided for @errEnterValidValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid value.'**
+  String get errEnterValidValue;
+
+  /// No description provided for @deleteAssetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete asset?'**
+  String get deleteAssetTitle;
+
+  /// No description provided for @deleteAssetConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" will disappear from your portfolio.'**
+  String deleteAssetConfirm(String name);
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @updateAssetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update \"{name}\"'**
+  String updateAssetTitle(String name);
+
+  /// No description provided for @editAmountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change amount — {name}'**
+  String editAmountTitle(String name);
+
+  /// No description provided for @valueEditServerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing the value will be available after a server update. For now, to fix the valuation, delete the asset and add it again.'**
+  String get valueEditServerHint;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @deleteAssetButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete asset'**
+  String get deleteAssetButton;
+
+  /// No description provided for @loggedInAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as'**
+  String get loggedInAs;
+
+  /// No description provided for @open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get open;
+
+  /// No description provided for @errorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get errorLabel;
 }
 
 class _AppLocalizationsDelegate

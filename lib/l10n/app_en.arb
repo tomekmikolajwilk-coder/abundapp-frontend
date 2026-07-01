@@ -17,9 +17,21 @@
   "portfolioCenter": "Portfolio",
   "portfolioValue": "Portfolio value",
   "valueOf": "{name} value",
-  "@valueOf": { "placeholders": { "name": { "type": "String" } } },
+  "@valueOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "yourAsset": "Your {asset}",
-  "@yourAsset": { "placeholders": { "asset": { "type": "String" } } },
+  "@yourAsset": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
   "periodLastVisit": "Since last visit",
   "periodYesterday": "Since yesterday",
   "periodWeekStart": "Week to date",
@@ -86,7 +98,13 @@
   "txTitle": "Transactions",
   "txLoadError": "Couldn't load transactions",
   "txAtPrice": "at {price}",
-  "@txAtPrice": { "placeholders": { "price": { "type": "String" } } },
+  "@txAtPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "txEmpty": "No transactions",
   "txEmptyHint": "Add an asset and a purchase entry will appear here.",
   "egHalf": "e.g. 0.5",
@@ -94,5 +112,48 @@
   "egFive": "e.g. 5",
   "etfDisplayHint": "E.g. a bond ETF can be shown under \"Bonds\" instead of \"ETFs\".",
   "otherDisplayHint": "An asset that's not in the lists (e.g. an unsupported stock) can be shown in a matching category.",
-  "topMovers": "Top movers"
+  "topMovers": "Top movers",
+  "emptyPortfolioTitle": "Your portfolio is empty",
+  "emptyPortfolioBody": "Add your first asset — cash, stocks, gold or crypto — and you'll see your whole net worth here.",
+  "addAssets": "Add assets",
+  "currencyPickerTitle": "Show value in currency",
+  "currencyPickerNote": "Converted at today's rate. The chart history is a projection of the current rate, not a past value.",
+  "currencyLoadError": "Couldn't load currencies",
+  "worth": "worth ",
+  "editAmountAndValue": "Edit amount and value",
+  "editAmountTooltip": "Edit amount",
+  "errEnterValidValue": "Enter a valid value.",
+  "deleteAssetTitle": "Delete asset?",
+  "deleteAssetConfirm": "\"{name}\" will disappear from your portfolio.",
+  "@deleteAssetConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "updateAssetTitle": "Update \"{name}\"",
+  "@updateAssetTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editAmountTitle": "Change amount — {name}",
+  "@editAmountTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "valueEditServerHint": "Changing the value will be available after a server update. For now, to fix the valuation, delete the asset and add it again.",
+  "save": "Save",
+  "deleteAssetButton": "Delete asset",
+  "loggedInAs": "Signed in as",
+  "open": "Open",
+  "errorLabel": "Error"
 }

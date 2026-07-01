@@ -301,4 +301,79 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get topMovers => 'Plus fortes variations';
+
+  @override
+  String get emptyPortfolioTitle => 'Votre portefeuille est vide';
+
+  @override
+  String get emptyPortfolioBody =>
+      'Ajoutez votre premier actif — liquidités, actions, or ou crypto — et vous verrez ici l\'ensemble de votre patrimoine.';
+
+  @override
+  String get addAssets => 'Ajouter des actifs';
+
+  @override
+  String get currencyPickerTitle => 'Afficher la valeur en devise';
+
+  @override
+  String get currencyPickerNote =>
+      'Converti au taux du jour. L\'historique du graphique est une projection du taux actuel, pas une valeur passée.';
+
+  @override
+  String get currencyLoadError => 'Impossible de charger les devises';
+
+  @override
+  String get worth => 'd\'une valeur de ';
+
+  @override
+  String get editAmountAndValue => 'Modifier la quantité et la valeur';
+
+  @override
+  String get editAmountTooltip => 'Modifier la quantité';
+
+  @override
+  String get errEnterValidValue => 'Saisissez une valeur valide.';
+
+  @override
+  String get deleteAssetTitle => 'Supprimer l\'actif ?';
+
+  @override
+  String deleteAssetConfirm(String name) {
+    return '« $name » disparaîtra de votre portefeuille.';
+  }
+
+  @override
+  String get cancel => 'Annuler';
+
+  @override
+  String get delete => 'Supprimer';
+
+  @override
+  String updateAssetTitle(String name) {
+    return 'Mettre à jour « $name »';
+  }
+
+  @override
+  String editAmountTitle(String name) {
+    return 'Modifier la quantité — $name';
+  }
+
+  @override
+  String get valueEditServerHint =>
+      'La modification de la valeur sera disponible après une mise à jour du serveur. Pour l\'instant, pour corriger l\'estimation, supprimez l\'actif et ajoutez-le à nouveau.';
+
+  @override
+  String get save => 'Enregistrer';
+
+  @override
+  String get deleteAssetButton => 'Supprimer l\'actif';
+
+  @override
+  String get loggedInAs => 'Connecté en tant que';
+
+  @override
+  String get open => 'Ouvrir';
+
+  @override
+  String get errorLabel => 'Erreur';
 }
